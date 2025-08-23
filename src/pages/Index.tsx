@@ -9,6 +9,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { PersonIcon, SunIcon, ClockIcon, StarIcon, ChatBubbleIcon } from '@radix-ui/react-icons';
 import { AnimatedSection } from '@/components/ui/animated-section';
 import { FloatingParticles } from '@/components/ui/floating-particles';
+import { CulturalExperienceModal } from '@/components/ui/cultural-experience-modal';
+import { sampleCulturalExperience } from '@/data/sample-experience';
 import corrientesRiversideImage from '@/assets/corrientes-riverside-sunset.jpg';
 
 const Index = () => {
@@ -21,6 +23,7 @@ const Index = () => {
   const [neaDestination, setNeaDestination] = useState('');
   const [email, setEmail] = useState('');
   const [culturalExperience, setCulturalExperience] = useState('');
+  const [isExperienceModalOpen, setIsExperienceModalOpen] = useState(false);
   const [translationResult, setTranslationResult] = useState<{
     word: string;
     translation: string;
@@ -123,7 +126,8 @@ const Index = () => {
   };
 
   const handleBuildTour = () => {
-    alert('¡Funcionalidad en desarrollo! Tu tour inteligente se creará pronto.');
+    // Simular generación de experiencia cultural
+    setIsExperienceModalOpen(true);
   };
 
   return (
@@ -138,21 +142,21 @@ const Index = () => {
         <AnimatedSection 
           animation="fade-in" 
           delay={200}
-          className="relative z-10 text-center text-white px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto"
+          className="relative z-10 text-center text-white px-3 sm:px-6 lg:px-8 max-w-4xl mx-auto"
         >
           <div className="hero-entrance stagger-children">
-            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
+            <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold mb-4 sm:mb-6 leading-tight">
               IberApp
             </h1>
-            <p className="text-xl sm:text-2xl lg:text-3xl mb-8 opacity-90 leading-relaxed">
+            <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl mb-6 sm:mb-8 opacity-90 leading-relaxed px-2">
               Conecta tu cultura con el NEA. Descubre lugares, traduce jergas y vive una experiencia cultural única con inteligencia artificial.
             </p>
             <Button 
               onClick={() => document.getElementById('translator-section')?.scrollIntoView({ behavior: 'smooth' })}
               size="lg" 
-              className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold px-8 py-4 text-lg shadow-warm transition-bounce pulse-glow"
+              className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg shadow-warm transition-bounce pulse-glow w-full sm:w-auto"
             >
-              <ChatBubbleIcon className="mr-2 h-5 w-5" />
+              <ChatBubbleIcon className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
               Prueba el Traductor Cultural
             </Button>
           </div>
@@ -160,14 +164,14 @@ const Index = () => {
       </section>
 
       {/* Tourism Form Section */}
-      <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 warm-gradient">
+      <section className="py-12 sm:py-16 md:py-24 px-3 sm:px-6 lg:px-8 warm-gradient">
         <div className="max-w-4xl mx-auto">
           <AnimatedSection animation="fade-up" delay={100}>
-            <div className="text-center mb-12">
-              <h2 className="text-3xl sm:text-4xl font-bold mb-4 text-foreground">
+            <div className="text-center mb-8 sm:mb-12">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4 text-foreground">
                 Constructor de Experiencia Cultural NEA
               </h2>
-              <p className="text-lg text-muted-foreground">
+              <p className="text-base sm:text-lg text-muted-foreground px-2">
                 Cuéntanos de dónde vienes y qué te interesa para crear puentes culturales únicos
               </p>
             </div>
@@ -175,20 +179,20 @@ const Index = () => {
 
           <AnimatedSection animation="scale-in" delay={300}>
             <Card className="shadow-soft float-animation">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <PersonIcon className="h-5 w-5 text-primary" />
+              <CardHeader className="p-4 sm:p-6">
+                <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                  <PersonIcon className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                   Configuración de Experiencia Cultural
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-sm sm:text-base">
                   Comparte tu origen cultural para crear conexiones personalizadas con el NEA
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-8">
+              <CardContent className="p-4 sm:p-6 space-y-6 sm:space-y-8">
                 {/* Personal Information */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                   <div>
-                    <Label htmlFor="name" className="text-base font-semibold mb-2 block">
+                    <Label htmlFor="name" className="text-sm sm:text-base font-semibold mb-2 block">
                       Mi nombre
                     </Label>
                     <Input
@@ -196,10 +200,11 @@ const Index = () => {
                       placeholder="¿Cómo te llamas?"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
+                      className="h-10 sm:h-11"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="email" className="text-base font-semibold mb-2 block">
+                    <Label htmlFor="email" className="text-sm sm:text-base font-semibold mb-2 block">
                       Email
                     </Label>
                     <Input
@@ -208,13 +213,14 @@ const Index = () => {
                       placeholder="tu@email.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
+                      className="h-10 sm:h-11"
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                   <div>
-                    <Label htmlFor="origin" className="text-base font-semibold mb-2 block">
+                    <Label htmlFor="origin" className="text-sm sm:text-base font-semibold mb-2 block">
                       Vengo de (país/región)
                     </Label>
                     <Input
@@ -222,14 +228,15 @@ const Index = () => {
                       placeholder="Ej: Italia, México, Japón..."
                       value={origin}
                       onChange={(e) => setOrigin(e.target.value)}
+                      className="h-10 sm:h-11"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="nea-destination" className="text-base font-semibold mb-2 block">
+                    <Label htmlFor="nea-destination" className="text-sm sm:text-base font-semibold mb-2 block">
                       Destino en NEA
                     </Label>
                     <Select value={neaDestination} onValueChange={setNeaDestination}>
-                      <SelectTrigger>
+                      <SelectTrigger className="h-10 sm:h-11">
                         <SelectValue placeholder="Elige tu destino" />
                       </SelectTrigger>
                       <SelectContent>
@@ -245,11 +252,11 @@ const Index = () => {
 
                 {/* Cultural Experience Preference */}
                 <div>
-                  <Label className="text-base font-semibold mb-4 block">
+                  <Label className="text-sm sm:text-base font-semibold mb-3 sm:mb-4 block">
                     Experiencia cultural preferida
                   </Label>
                   <Select value={culturalExperience} onValueChange={setCulturalExperience}>
-                    <SelectTrigger>
+                    <SelectTrigger className="h-10 sm:h-11">
                       <SelectValue placeholder="¿Qué tipo de experiencia buscas?" />
                     </SelectTrigger>
                     <SelectContent>
@@ -262,30 +269,14 @@ const Index = () => {
                   </Select>
                 </div>
 
-                {/* Weather Display */}
-                <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <SunIcon className="h-6 w-6 text-accent" />
-                    <div>
-                      <p className="font-semibold">Clima actual</p>
-                      <p className="text-sm text-muted-foreground">NEA, Argentina</p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-2xl font-bold">34°C</p>
-                    <div className="flex gap-2">
-                      <Badge variant="secondary">Soleado</Badge>
-                      <Badge variant="outline">UV Alto</Badge>
-                    </div>
-                  </div>
-                </div>
+
 
                 {/* Tourist Interests */}
                 <div>
-                  <Label className="text-base font-semibold mb-4 block">
+                  <Label className="text-sm sm:text-base font-semibold mb-3 sm:mb-4 block">
                     Intereses turísticos
                   </Label>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
                     {interests.map((interest) => (
                       <div key={interest.id} className="flex items-center space-x-2">
                         <Checkbox
@@ -295,7 +286,7 @@ const Index = () => {
                             handleInterestChange(interest.id, checked as boolean)
                           }
                         />
-                        <Label htmlFor={interest.id} className="text-sm">
+                        <Label htmlFor={interest.id} className="text-xs sm:text-sm">
                           {interest.label}
                         </Label>
                       </div>
@@ -305,12 +296,12 @@ const Index = () => {
 
                 {/* Available Time */}
                 <div>
-                  <Label htmlFor="time" className="text-base font-semibold mb-4 block">
-                    <ClockIcon className="inline h-4 w-4 mr-2" />
+                  <Label htmlFor="time" className="text-sm sm:text-base font-semibold mb-3 sm:mb-4 block">
+                    <ClockIcon className="inline h-3 w-3 sm:h-4 sm:w-4 mr-2" />
                     Tiempo disponible
                   </Label>
                   <Select value={selectedTime} onValueChange={setSelectedTime}>
-                    <SelectTrigger className="w-full">
+                    <SelectTrigger className="w-full h-10 sm:h-11">
                       <SelectValue placeholder="Selecciona la duración" />
                     </SelectTrigger>
                     <SelectContent>
@@ -325,12 +316,12 @@ const Index = () => {
 
                 {/* Starting Point */}
                 <div>
-                  <Label htmlFor="starting-point" className="text-base font-semibold mb-4 block">
-                    <PersonIcon className="inline h-4 w-4 mr-2" />
+                  <Label htmlFor="starting-point" className="text-sm sm:text-base font-semibold mb-3 sm:mb-4 block">
+                    <PersonIcon className="inline h-3 w-3 sm:h-4 sm:w-4 mr-2" />
                     Punto de partida
                   </Label>
                   <Select value={selectedStartingPoint} onValueChange={setSelectedStartingPoint}>
-                    <SelectTrigger className="w-full">
+                    <SelectTrigger className="w-full h-10 sm:h-11">
                       <SelectValue placeholder="Elige dónde comenzar" />
                     </SelectTrigger>
                     <SelectContent>
@@ -345,10 +336,10 @@ const Index = () => {
 
                 <Button 
                   onClick={handleBuildTour}
-                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-soft"
+                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-soft py-3 sm:py-4 text-base sm:text-lg"
                   size="lg"
                 >
-                  <StarIcon className="mr-2 h-5 w-5" />
+                  <StarIcon className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
                   Generar Experiencia Cultural Personalizada
                 </Button>
               </CardContent>
@@ -358,14 +349,14 @@ const Index = () => {
       </section>
 
       {/* Cultural Translator Section */}
-      <section id="translator-section" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-muted/30">
+      <section id="translator-section" className="py-12 sm:py-16 md:py-24 px-3 sm:px-6 lg:px-8 bg-muted/30">
         <div className="max-w-4xl mx-auto">
           <AnimatedSection animation="fade-up" delay={100}>
-            <div className="text-center mb-12">
-              <h2 className="text-3xl sm:text-4xl font-bold mb-4 text-foreground">
+            <div className="text-center mb-8 sm:mb-12">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4 text-foreground">
                 Traductor Cultural NEA
               </h2>
-              <p className="text-lg text-muted-foreground">
+              <p className="text-base sm:text-lg text-muted-foreground px-2">
                 Descubre conexiones entre tu cultura y las expresiones del NEA
               </p>
             </div>
@@ -373,27 +364,27 @@ const Index = () => {
 
           <AnimatedSection animation="bounce-in" delay={300}>
             <Card className="shadow-soft">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <ChatBubbleIcon className="h-5 w-5 text-secondary" />
+              <CardHeader className="p-4 sm:p-6">
+                <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                  <ChatBubbleIcon className="h-4 w-4 sm:h-5 sm:w-5 text-secondary" />
                   Traductor Cultural con Puentes
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-sm sm:text-base">
                   Escribe una palabra o frase del NEA para descubrir su significado y conexiones culturales
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="flex gap-4">
+              <CardContent className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                   <Input
                     placeholder="Ej: che, mate, mitaí, sapucai..."
                     value={slangInput}
                     onChange={(e) => setSlangInput(e.target.value)}
-                    className="flex-1"
+                    className="flex-1 h-10 sm:h-11"
                     onKeyDown={(e) => e.key === 'Enter' && handleTranslate()}
                   />
                   <Button 
                     onClick={handleTranslate}
-                    className="bg-secondary hover:bg-secondary/90 text-secondary-foreground"
+                    className="bg-secondary hover:bg-secondary/90 text-secondary-foreground py-3 sm:py-4 text-sm sm:text-base w-full sm:w-auto"
                     disabled={!slangInput.trim()}
                   >
                     <ChatBubbleIcon className="mr-2 h-4 w-4" />
@@ -404,31 +395,31 @@ const Index = () => {
                 {translationResult && (
                   <AnimatedSection animation="fade-in" delay={100}>
                     <Card className="bg-gradient-to-br from-primary/5 to-secondary/5 border-primary/20">
-                      <CardHeader>
-                        <CardTitle className="text-primary text-xl">
+                      <CardHeader className="p-4 sm:p-6">
+                        <CardTitle className="text-primary text-lg sm:text-xl">
                           "{translationResult.word}"
                         </CardTitle>
                       </CardHeader>
-                      <CardContent className="space-y-4">
+                      <CardContent className="p-4 sm:p-6 pt-0 space-y-3 sm:space-y-4">
                         <div>
-                          <h4 className="font-semibold text-secondary mb-2">Traducción:</h4>
-                          <p className="text-foreground">{translationResult.translation}</p>
+                          <h4 className="font-semibold text-secondary mb-2 text-sm sm:text-base">Traducción:</h4>
+                          <p className="text-foreground text-sm sm:text-base">{translationResult.translation}</p>
                         </div>
                         <div>
-                          <h4 className="font-semibold text-secondary mb-2">Contexto cultural NEA:</h4>
-                          <p className="text-muted-foreground">{translationResult.explanation}</p>
+                          <h4 className="font-semibold text-secondary mb-2 text-sm sm:text-base">Contexto cultural NEA:</h4>
+                          <p className="text-muted-foreground text-sm sm:text-base">{translationResult.explanation}</p>
                         </div>
                         <div>
-                          <h4 className="font-semibold text-secondary mb-2">Ejemplo de uso:</h4>
-                          <p className="text-foreground italic">"{translationResult.example}"</p>
+                          <h4 className="font-semibold text-secondary mb-2 text-sm sm:text-base">Ejemplo de uso:</h4>
+                          <p className="text-foreground italic text-sm sm:text-base">"{translationResult.example}"</p>
                         </div>
                         {translationResult.culturalBridge && (
                           <div className="border-t pt-4 mt-4">
-                            <h4 className="font-semibold text-accent mb-2 flex items-center gap-2">
+                            <h4 className="font-semibold text-accent mb-2 flex items-center gap-2 text-sm sm:text-base">
                               <PersonIcon className="h-4 w-4" />
                               {translationResult.culturalBridge}
                             </h4>
-                            <p className="text-foreground bg-accent/10 p-3 rounded-lg border-l-4 border-accent">
+                            <p className="text-foreground bg-accent/10 p-3 rounded-lg border-l-4 border-accent text-sm sm:text-base">
                               {translationResult.comparison}
                             </p>
                           </div>
@@ -440,7 +431,7 @@ const Index = () => {
 
                 {/* Popular suggestions */}
                 <div className="text-center">
-                  <p className="text-sm text-muted-foreground mb-3">Palabras populares para explorar:</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground mb-3">Palabras populares para explorar:</p>
                   <div className="flex flex-wrap justify-center gap-2">
                     {['che', 'mate', 'mitaí', 'sapucai'].map((word) => (
                       <Button
@@ -451,7 +442,7 @@ const Index = () => {
                           setSlangInput(word);
                           handleTranslate();
                         }}
-                        className="text-xs"
+                        className="text-xs py-2 px-3"
                       >
                         {word}
                       </Button>
@@ -466,15 +457,22 @@ const Index = () => {
 
       {/* Footer */}
       <AnimatedSection animation="fade-up" delay={200}>
-        <footer className="py-8 px-4 sm:px-6 lg:px-8 bg-primary text-primary-foreground">
+        <footer className="py-6 sm:py-8 px-3 sm:px-6 lg:px-8 bg-primary text-primary-foreground">
           <div className="max-w-4xl mx-auto text-center">
-            <p className="text-lg">
+            <p className="text-sm sm:text-lg px-2">
               Desarrollado por <span className="font-bold">AsyncDevs</span> en{' '}
               <span className="font-bold">HackIAthon by Devlights 2025</span> 🚀
             </p>
           </div>
         </footer>
       </AnimatedSection>
+
+      {/* Cultural Experience Modal */}
+      <CulturalExperienceModal
+        isOpen={isExperienceModalOpen}
+        onClose={() => setIsExperienceModalOpen(false)}
+        experience={sampleCulturalExperience}
+      />
     </div>
   );
 };
