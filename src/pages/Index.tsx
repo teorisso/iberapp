@@ -110,7 +110,7 @@ const Index = () => {
       {/* Hero Section */}
       <section 
         className="relative min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url(${neaRiversideImage})` }}
+        style={{ backgroundImage: `linear-gradient(rgba(0,0,0,0.3), rgba(139,69,19,0.4)), url(${neaRiversideImage})` }}
       >
         <FloatingParticles />
         <div className="absolute inset-0 hero-gradient opacity-20"></div>
@@ -124,7 +124,7 @@ const Index = () => {
               IberApp
             </h1>
             <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl mb-6 sm:mb-8 opacity-90 leading-relaxed px-2">
-              Traduce jergas del NEA con puentes culturales personalizados. Descubre conexiones únicas entre tu cultura y el Noreste Argentino.
+              Conecta culturas a través del lenguaje del NEA
             </p>
                          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                <Button 
@@ -150,7 +150,7 @@ const Index = () => {
       </section>
 
       {/* Cultural Translator Section - MAIN FEATURE */}
-      <section id="translator-section" className="py-12 sm:py-16 md:py-24 px-3 sm:px-6 lg:px-8 bg-muted/30">
+      <section id="translator-section" className="py-12 sm:py-16 md:py-24 px-3 sm:px-6 lg:px-8 bg-gradient-to-br from-orange-50 to-amber-50">
         <div className="max-w-4xl mx-auto">
           <AnimatedSection animation="fade-up" delay={100}>
             <div className="text-center mb-8 sm:mb-12">
@@ -158,10 +158,10 @@ const Index = () => {
                 🌍 Traductor Cultural NEA
               </h2>
               <p className="text-base sm:text-lg text-muted-foreground px-2">
-                <strong>Funcionalidad Principal:</strong> Traduce jergas del NEA completamente a tu idioma con conexiones culturales personalizadas usando IA
+                Traduce jergas del NEA con IA y conexiones culturales
               </p>
               <div className="mt-4 flex justify-center">
-                <Badge className="bg-primary/20 text-primary border-primary/30 px-4 py-1 text-sm">
+                <Badge variant="secondary" className="px-4 py-1 text-sm">
                   ✨ Potenciado por Inteligencia Artificial
                 </Badge>
               </div>
@@ -173,10 +173,10 @@ const Index = () => {
               <CardHeader className="p-4 sm:p-6">
                 <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
                   <ChatBubbleIcon className="h-4 w-4 sm:h-5 sm:w-5 text-secondary" />
-                  Traductor Cultural con Puentes
+                  Traductor con Puentes Culturales
                 </CardTitle>
                 <CardDescription className="text-sm sm:text-base">
-                  Escribe una palabra o frase del NEA para descubrir su significado y conexiones culturales
+                  Escribe una palabra del NEA
                 </CardDescription>
               </CardHeader>
               <CardContent className="p-4 sm:p-6 space-y-4 sm:space-y-6">
@@ -191,8 +191,8 @@ const Index = () => {
                     onChange={(e) => setTranslatorOrigin(e.target.value)}
                     className="h-10 sm:h-11"
                   />
-                                     <p className="text-xs text-muted-foreground mt-1">
-                     TODA la respuesta estará traducida a tu idioma: palabra, explicación, ejemplo y comparaciones culturales
+                   <p className="text-xs text-muted-foreground mt-1">
+                     Respuesta completa en tu idioma
                    </p>
                    {translatorOrigin && (
                      <div className="mt-2">
@@ -330,9 +330,6 @@ const Index = () => {
                       </Button>
                     ))}
                   </div>
-                  <p className="text-xs text-muted-foreground mt-2">
-                    ✨ Estas palabras están disponibles en nuestra base de datos
-                  </p>
                 </div>
 
               </CardContent>
@@ -342,7 +339,7 @@ const Index = () => {
       </section>
 
       {/* Cultural Experience Builder Section */}
-      <section id="experience-section" className="py-12 sm:py-16 md:py-24 px-3 sm:px-6 lg:px-8 warm-gradient">
+      <section id="experience-section" className="py-12 sm:py-16 md:py-24 px-3 sm:px-6 lg:px-8 bg-gradient-to-br from-orange-50 to-amber-50">
         <div className="max-w-4xl mx-auto">
           <AnimatedSection animation="fade-up" delay={100}>
             <div className="text-center mb-8 sm:mb-12">
@@ -350,11 +347,11 @@ const Index = () => {
                 🗺️ Constructor de Experiencia Cultural NEA
               </h2>
               <p className="text-base sm:text-lg text-muted-foreground px-2">
-                La IA creará actividades personalizadas basadas en tu origen cultural y destino elegido
+                Experiencias personalizadas con IA
               </p>
               <div className="mt-4 flex justify-center">
                 <Badge variant="secondary" className="px-4 py-1 text-sm">
-                  🎯 Funcionalidad Complementaria
+                  ✨ Potenciado por Inteligencia Artificial
                 </Badge>
               </div>
             </div>
@@ -368,7 +365,7 @@ const Index = () => {
                   Configuración de Experiencia Cultural
                 </CardTitle>
                 <CardDescription className="text-sm sm:text-base">
-                  Solo necesitamos 3 datos esenciales para generar tu experiencia perfecta
+                  3 datos para tu experiencia cultural
                 </CardDescription>
               </CardHeader>
               <CardContent className="p-4 sm:p-6 space-y-6 sm:space-y-8">
@@ -398,7 +395,7 @@ const Index = () => {
                     className="h-10 sm:h-11"
                   />
                   <p className="text-xs text-muted-foreground mt-1">
-                    La IA personalizará actividades según tu trasfondo cultural
+                    Personalizamos según tu cultura
                   </p>
                 </div>
 
@@ -419,7 +416,7 @@ const Index = () => {
                     </SelectContent>
                   </Select>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Cada ciudad tiene actividades únicas que conectaremos con tu cultura
+                    Actividades únicas por ciudad
                   </p>
                 </div>
 
@@ -437,7 +434,7 @@ const Index = () => {
 
                 <Button 
                   onClick={handleBuildTour}
-                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-soft py-3 sm:py-4 text-base sm:text-lg"
+                  className="w-full bg-secondary hover:bg-secondary/90 text-secondary-foreground shadow-soft py-3 sm:py-4 text-base sm:text-lg"
                   size="lg"
                   disabled={!name.trim() || !origin.trim() || !neaDestination || isGeneratingExperience}
                 >
@@ -532,7 +529,7 @@ const Index = () => {
 
       {/* Footer */}
       <AnimatedSection animation="fade-up" delay={200}>
-        <footer className="py-6 sm:py-8 px-3 sm:px-6 lg:px-8 bg-primary text-primary-foreground">
+        <footer className="py-6 sm:py-8 px-3 sm:px-6 lg:px-8 bg-accent text-accent-foreground">
           <div className="max-w-4xl mx-auto text-center">
             <p className="text-sm sm:text-lg px-2">
               Desarrollado por <span className="font-bold">AsyncDevs</span> en{' '}
