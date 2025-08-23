@@ -8,7 +8,7 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Warm tourism color palette inspired by Corrientes riverside */
+    /* Warm tourism color palette inspired by NEA region */
     --background: 45 50% 98%;
     --foreground: 210 15% 20%;
 

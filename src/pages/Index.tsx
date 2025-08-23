@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -6,10 +6,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { PersonIcon, SunIcon, ClockIcon, StarIcon, ChatBubbleIcon } from '@radix-ui/react-icons';
+import { PersonIcon, SunIcon, ClockIcon, StarIcon, ChatBubbleIcon, ReloadIcon } from '@radix-ui/react-icons';
 import { AnimatedSection } from '@/components/ui/animated-section';
 import { FloatingParticles } from '@/components/ui/floating-particles';
-import corrientesRiversideImage from '@/assets/corrientes-riverside-sunset.jpg';
+import { geminiService, type GeminiTranslationResponse } from '@/lib/gemini';
+import { userService, supabase } from '@/lib/supabase';
+import neaRiversideImage from '@/assets/corrientes-riverside-sunset.jpg';
 
 const Index = () => {
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
@@ -21,14 +23,8 @@ const Index = () => {
   const [neaDestination, setNeaDestination] = useState('');
   const [email, setEmail] = useState('');
   const [culturalExperience, setCulturalExperience] = useState('');
-  const [translationResult, setTranslationResult] = useState<{
-    word: string;
-    translation: string;
-    explanation: string;
-    example: string;
-    culturalBridge: string;
-    comparison: string;
-  } | null>(null);
+  const [translationResult, setTranslationResult] = useState<GeminiTranslationResponse | null>(null);
+  const [isTranslating, setIsTranslating] = useState(false);
 
   const interests = [
     { id: 'historia', label: 'Historia' },
@@ -59,10 +55,10 @@ const Index = () => {
   ];
 
   const startingPoints = [
-    { value: 'plaza-cabral', label: 'Plaza Cabral' },
-    { value: 'costanera', label: 'Costanera' },
+    { value: 'plaza-principal', label: 'Plaza Principal' },
+    { value: 'costanera', label: 'Costanera/Rivera' },
     { value: 'centro-historico', label: 'Centro Histórico' },
-    { value: 'puerto', label: 'Puerto' }
+    { value: 'terminal', label: 'Terminal de Ómnibus' }
   ];
 
   const handleInterestChange = (interestId: string, checked: boolean) => {
@@ -73,65 +69,68 @@ const Index = () => {
     }
   };
 
-  const handleTranslate = () => {
-    // Enhanced mock translation results with cultural bridges
-    const mockTranslations: Record<string, any> = {
-      'che': {
-        word: 'Che',
-        translation: 'Oye / Hey (saludo informal)',
-        explanation: 'Expresión muy común en el NEA para llamar la atención o saludar informalmente. Crea familiaridad instantánea.',
-        example: '"¡Che, vamos a la costanera a tomar unos mates!"',
+  const handleTranslate = async () => {
+    if (!slangInput.trim()) return;
+    
+    setIsTranslating(true);
+    setTranslationResult(null);
+    
+    try {
+      const result = await geminiService.getEnhancedTranslation(
+        slangInput.trim(),
+        origin || undefined,
+        culturalExperience || undefined
+      );
+      
+      setTranslationResult(result);
+    } catch (error) {
+      console.error('Translation error:', error);
+      
+      // Fallback error translation
+      setTranslationResult({
+        word: slangInput,
+        translation: 'Error al procesar la traducción',
+        explanation: 'Hubo un problema al conectar con el servicio de traducción. Verifica tu conexión a internet.',
+        example: 'Intenta de nuevo en unos momentos.',
         culturalBridge: 'En mi cultura/lugar de origen',
-        comparison: 'Como "ciao" en Italia (saludo casual y amigable) • Como "tío" en España (forma familiar de dirigirse) • Como "güey" en México (tratamiento entre amigos)'
-      },
-      'mate': {
-        word: 'Mate',
-        translation: 'Ceremonia de té tradicional',
-        explanation: 'Ritual social sagrado en el NEA que representa compartir, comunidad y conexión. Es más que una bebida.',
-        example: '"¿Querés tomar unos mates? Es nuestra forma de hacer nuevos amigos"',
-        culturalBridge: 'En mi cultura/lugar de origen',
-        comparison: 'Como la ceremonia del té en Japón (ritual de conexión y respeto) • Como el té compartido en Marruecos (gesto de hospitalidad) • Más comunitario que el afternoon tea británico (todos comparten el mismo recipiente)'
-      },
-      'mitaí': {
-        word: 'Mitaí',
-        translation: 'Niño/a (idioma guaraní)',
-        explanation: 'Palabra guaraní que muestra la herencia indígena viva en el NEA. Se usa cotidianamente mezclando idiomas.',
-        example: '"Los mitaí están jugando en la plaza, hablando guaraní y español"',
-        culturalBridge: 'En mi cultura/lugar de origen',
-        comparison: 'Como "wawa" en quechua en Perú (idioma indígena en uso diario) • Similar a palabras gaélicas en inglés irlandés (preservación cultural) • Diferente a países donde se suprimieron idiomas originarios'
-      },
-      'sapucai': {
-        word: 'Sapucai',
-        translation: 'Grito de alegría y celebración guaraní',
-        explanation: 'Expresión indígena que sobrevivió la colonización, usada en música folclórica y celebraciones del NEA.',
-        example: '"¡Sapucai! se escucha en cada festival de chamamé"',
-        culturalBridge: 'En mi cultura/lugar de origen',
-        comparison: 'Como "sláinte!" en Irlanda (grito celebratorio con significado cultural profundo) • Como "¡órale!" en México (expresión de alegría) • Similar a gritos de guerra escoceses (conecta con orgullo ancestral)'
-      }
-    };
-
-    const result = mockTranslations[slangInput.toLowerCase()] || {
-      word: slangInput,
-      translation: 'Palabra no encontrada en nuestro diccionario',
-      explanation: 'Esta palabra no se encuentra en nuestra base de datos de expresiones del NEA.',
-      example: 'Intenta con palabras como "che", "mate", "mitaí", "sapucai".',
-      culturalBridge: '',
-      comparison: 'Explora más términos para descubrir conexiones culturales fascinantes.'
-    };
-
-    setTranslationResult(result);
+        comparison: 'Servicio temporalmente no disponible.'
+      });
+    } finally {
+      setIsTranslating(false);
+    }
   };
 
-  const handleBuildTour = () => {
-    alert('¡Funcionalidad en desarrollo! Tu tour inteligente se creará pronto.');
+  const handleBuildTour = async () => {
+    if (!name || !email || !origin) {
+      alert('Por favor completa tu nombre, email y origen para generar tu experiencia cultural.');
+      return;
+    }
+
+    try {
+      // Save user profile to Supabase
+      await userService.upsertProfile({
+        name,
+        email,
+        origin,
+        nea_destination: neaDestination,
+        cultural_experience: culturalExperience,
+        interests: selectedInterests
+      });
+      
+      alert('¡Perfil guardado! La funcionalidad de tours inteligentes se lanzará pronto.');
+    } catch (error) {
+      console.error('Error saving profile:', error);
+      alert('¡Funcionalidad en desarrollo! Tu tour inteligente se creará pronto.');
+    }
   };
+
 
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
       <section 
         className="relative min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url(${corrientesRiversideImage})` }}
+        style={{ backgroundImage: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url(${neaRiversideImage})` }}
       >
         <FloatingParticles />
         <div className="absolute inset-0 hero-gradient opacity-20"></div>
@@ -394,10 +393,19 @@ const Index = () => {
                   <Button 
                     onClick={handleTranslate}
                     className="bg-secondary hover:bg-secondary/90 text-secondary-foreground"
-                    disabled={!slangInput.trim()}
+                    disabled={!slangInput.trim() || isTranslating}
                   >
-                    <ChatBubbleIcon className="mr-2 h-4 w-4" />
-                    Traducir
+                    {isTranslating ? (
+                      <>
+                        <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                        Traduciendo...
+                      </>
+                    ) : (
+                      <>
+                        <ChatBubbleIcon className="mr-2 h-4 w-4" />
+                        Traducir con IA
+                      </>
+                    )}
                   </Button>
                 </div>
 
@@ -427,10 +435,35 @@ const Index = () => {
                             <h4 className="font-semibold text-accent mb-2 flex items-center gap-2">
                               <PersonIcon className="h-4 w-4" />
                               {translationResult.culturalBridge}
+                              {origin && <Badge variant="outline" className="ml-2">{origin}</Badge>}
                             </h4>
                             <p className="text-foreground bg-accent/10 p-3 rounded-lg border-l-4 border-accent">
                               {translationResult.comparison}
                             </p>
+                          </div>
+                        )}
+                        
+                        {/* Show interactive suggestions if word was not found */}
+                        {translationResult.translation === 'Palabra no encontrada en nuestra base de datos' && (
+                          <div className="border-t pt-4 mt-4">
+                            <h4 className="font-semibold text-orange-600 mb-3">💡 Palabras sugeridas del NEA:</h4>
+                            <div className="flex flex-wrap gap-2">
+                              {['che', 'mate', 'mitaí', 'sapucai', 'aguante'].map((suggestedWord) => (
+                                <Button
+                                  key={suggestedWord}
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => {
+                                    setSlangInput(suggestedWord);
+                                    handleTranslate();
+                                  }}
+                                  className="text-xs bg-orange-50 hover:bg-orange-100 border-orange-200"
+                                  disabled={isTranslating}
+                                >
+                                  🔍 {suggestedWord}
+                                </Button>
+                              ))}
+                            </div>
                           </div>
                         )}
                       </CardContent>
@@ -442,7 +475,7 @@ const Index = () => {
                 <div className="text-center">
                   <p className="text-sm text-muted-foreground mb-3">Palabras populares para explorar:</p>
                   <div className="flex flex-wrap justify-center gap-2">
-                    {['che', 'mate', 'mitaí', 'sapucai'].map((word) => (
+                    {['che', 'mate', 'mitaí', 'sapucai', 'aguante'].map((word) => (
                       <Button
                         key={word}
                         variant="outline"
@@ -451,13 +484,18 @@ const Index = () => {
                           setSlangInput(word);
                           handleTranslate();
                         }}
-                        className="text-xs"
+                        className="text-xs hover:bg-primary/10 hover:text-primary"
+                        disabled={isTranslating}
                       >
                         {word}
                       </Button>
                     ))}
                   </div>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    ✨ Estas palabras están disponibles en nuestra base de datos
+                  </p>
                 </div>
+
               </CardContent>
             </Card>
           </AnimatedSection>
