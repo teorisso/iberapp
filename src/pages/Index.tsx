@@ -14,11 +14,18 @@ const Index = () => {
   const [selectedTime, setSelectedTime] = useState('');
   const [selectedStartingPoint, setSelectedStartingPoint] = useState('');
   const [slangInput, setSlangInput] = useState('');
+  const [name, setName] = useState('');
+  const [origin, setOrigin] = useState('');
+  const [neaDestination, setNeaDestination] = useState('');
+  const [email, setEmail] = useState('');
+  const [culturalExperience, setCulturalExperience] = useState('');
   const [translationResult, setTranslationResult] = useState<{
     word: string;
     translation: string;
     explanation: string;
     example: string;
+    culturalBridge: string;
+    comparison: string;
   } | null>(null);
 
   const interests = [
@@ -32,14 +39,28 @@ const Index = () => {
   const timeOptions = [
     { value: '2h', label: '2 horas' },
     { value: '4h', label: '4 horas' },
-    { value: '1day', label: '1 día completo' }
+    { value: '1day', label: '1 día completo' },
+    { value: '2+days', label: '2+ días' }
+  ];
+
+  const neaDestinations = [
+    { value: 'corrientes', label: 'Corrientes' },
+    { value: 'resistencia', label: 'Resistencia' },
+    { value: 'posadas', label: 'Posadas' },
+    { value: 'formosa', label: 'Formosa' }
+  ];
+
+  const culturalExperiences = [
+    { value: 'similar', label: 'Similar a mi cultura' },
+    { value: 'different', label: 'Completamente diferente' },
+    { value: 'mixed', label: 'Experiencia mixta' }
   ];
 
   const startingPoints = [
     { value: 'plaza-cabral', label: 'Plaza Cabral' },
     { value: 'costanera', label: 'Costanera' },
     { value: 'centro-historico', label: 'Centro Histórico' },
-    { value: 'puerto', label: 'Puerto de Corrientes' }
+    { value: 'puerto', label: 'Puerto' }
   ];
 
   const handleInterestChange = (interestId: string, checked: boolean) => {
@@ -51,33 +72,49 @@ const Index = () => {
   };
 
   const handleTranslate = () => {
-    // Mock translation results based on input
+    // Enhanced mock translation results with cultural bridges
     const mockTranslations: Record<string, any> = {
       'che': {
         word: 'Che',
-        translation: 'Oye / Hey (informal greeting)',
-        explanation: 'Expresión muy común en el litoral argentino para llamar la atención o saludar informalmente.',
-        example: '"¡Che, vení acá!" - "¡Oye, ven acá!"'
+        translation: 'Oye / Hey (saludo informal)',
+        explanation: 'Expresión muy común en el NEA para llamar la atención o saludar informalmente. Crea familiaridad instantánea.',
+        example: '"¡Che, vamos a la costanera a tomar unos mates!"',
+        culturalBridge: 'En mi cultura/lugar de origen',
+        comparison: 'Como "ciao" en Italia (saludo casual y amigable) • Como "tío" en España (forma familiar de dirigirse) • Como "güey" en México (tratamiento entre amigos)'
+      },
+      'mate': {
+        word: 'Mate',
+        translation: 'Ceremonia de té tradicional',
+        explanation: 'Ritual social sagrado en el NEA que representa compartir, comunidad y conexión. Es más que una bebida.',
+        example: '"¿Querés tomar unos mates? Es nuestra forma de hacer nuevos amigos"',
+        culturalBridge: 'En mi cultura/lugar de origen',
+        comparison: 'Como la ceremonia del té en Japón (ritual de conexión y respeto) • Como el té compartido en Marruecos (gesto de hospitalidad) • Más comunitario que el afternoon tea británico (todos comparten el mismo recipiente)'
       },
       'mitaí': {
         word: 'Mitaí',
-        translation: 'Niño/a',
-        explanation: 'Palabra de origen guaraní muy usada en Corrientes para referirse a los niños.',
-        example: '"Los mitaí están jugando en la plaza" - "Los niños están jugando en la plaza"'
+        translation: 'Niño/a (idioma guaraní)',
+        explanation: 'Palabra guaraní que muestra la herencia indígena viva en el NEA. Se usa cotidianamente mezclando idiomas.',
+        example: '"Los mitaí están jugando en la plaza, hablando guaraní y español"',
+        culturalBridge: 'En mi cultura/lugar de origen',
+        comparison: 'Como "wawa" en quechua en Perú (idioma indígena en uso diario) • Similar a palabras gaélicas en inglés irlandés (preservación cultural) • Diferente a países donde se suprimieron idiomas originarios'
       },
-      'kurepi': {
-        word: 'Kurepi',
-        translation: 'Cerdo',
-        explanation: 'Término guaraní para referirse al cerdo, muy usado en la gastronomía local.',
-        example: '"Vamos a comer kurepi asado" - "Vamos a comer cerdo asado"'
+      'sapucai': {
+        word: 'Sapucai',
+        translation: 'Grito de alegría y celebración guaraní',
+        explanation: 'Expresión indígena que sobrevivió la colonización, usada en música folclórica y celebraciones del NEA.',
+        example: '"¡Sapucai! se escucha en cada festival de chamamé"',
+        culturalBridge: 'En mi cultura/lugar de origen',
+        comparison: 'Como "sláinte!" en Irlanda (grito celebratorio con significado cultural profundo) • Como "¡órale!" en México (expresión de alegría) • Similar a gritos de guerra escoceses (conecta con orgullo ancestral)'
       }
     };
 
     const result = mockTranslations[slangInput.toLowerCase()] || {
       word: slangInput,
       translation: 'Palabra no encontrada en nuestro diccionario',
-      explanation: 'Esta palabra no se encuentra en nuestra base de datos de expresiones correntinas.',
-      example: 'Intenta con palabras como "che", "mitaí", "kurepi".'
+      explanation: 'Esta palabra no se encuentra en nuestra base de datos de expresiones del NEA.',
+      example: 'Intenta con palabras como "che", "mate", "mitaí", "sapucai".',
+      culturalBridge: '',
+      comparison: 'Explora más términos para descubrir conexiones culturales fascinantes.'
     };
 
     setTranslationResult(result);
@@ -101,15 +138,15 @@ const Index = () => {
               NEA Culture Translator
             </h1>
             <p className="text-xl sm:text-2xl lg:text-3xl mb-8 opacity-90 leading-relaxed">
-              Comprende el lunfardo local y vive la cultura correntina con inteligencia artificial
+              Conecta tu cultura con el NEA. Descubre, traduce y vive una experiencia cultural única con inteligencia artificial
             </p>
             <Button 
-              onClick={handleBuildTour}
+              onClick={() => document.getElementById('translator-section')?.scrollIntoView({ behavior: 'smooth' })}
               size="lg" 
               className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold px-8 py-4 text-lg shadow-warm transition-bounce"
             >
-              <StarIcon className="mr-2 h-5 w-5" />
-              Construye tu tour inteligente
+              <ChatBubbleIcon className="mr-2 h-5 w-5" />
+              Prueba el Traductor Cultural
             </Button>
           </div>
         </div>
@@ -120,10 +157,10 @@ const Index = () => {
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12 animate-slide-up">
             <h2 className="text-3xl sm:text-4xl font-bold mb-4 text-foreground">
-              Personaliza tu experiencia
+              Constructor de Experiencia Cultural NEA
             </h2>
             <p className="text-lg text-muted-foreground">
-              Cuéntanos qué te interesa y crearemos el tour perfecto para ti
+              Cuéntanos de dónde vienes y qué te interesa para crear puentes culturales únicos
             </p>
           </div>
 
@@ -131,20 +168,97 @@ const Index = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <PersonIcon className="h-5 w-5 text-primary" />
-                Configuración del Tour
+                Configuración de Experiencia Cultural
               </CardTitle>
               <CardDescription>
-                Selecciona tus preferencias para crear una experiencia única
+                Comparte tu origen cultural para crear conexiones personalizadas con el NEA
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-8">
+              {/* Personal Information */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                  <Label htmlFor="name" className="text-base font-semibold mb-2 block">
+                    Mi nombre
+                  </Label>
+                  <Input
+                    id="name"
+                    placeholder="¿Cómo te llamas?"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="email" className="text-base font-semibold mb-2 block">
+                    Email
+                  </Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="tu@email.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                  <Label htmlFor="origin" className="text-base font-semibold mb-2 block">
+                    Vengo de (país/región)
+                  </Label>
+                  <Input
+                    id="origin"
+                    placeholder="Ej: Italia, México, Japón..."
+                    value={origin}
+                    onChange={(e) => setOrigin(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="nea-destination" className="text-base font-semibold mb-2 block">
+                    Destino en NEA
+                  </Label>
+                  <Select value={neaDestination} onValueChange={setNeaDestination}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Elige tu destino" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {neaDestinations.map((destination) => (
+                        <SelectItem key={destination.value} value={destination.value}>
+                          {destination.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {/* Cultural Experience Preference */}
+              <div>
+                <Label className="text-base font-semibold mb-4 block">
+                  Experiencia cultural preferida
+                </Label>
+                <Select value={culturalExperience} onValueChange={setCulturalExperience}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="¿Qué tipo de experiencia buscas?" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {culturalExperiences.map((experience) => (
+                      <SelectItem key={experience.value} value={experience.value}>
+                        {experience.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
               {/* Weather Display */}
               <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
                 <div className="flex items-center gap-3">
                   <SunIcon className="h-6 w-6 text-accent" />
                   <div>
                     <p className="font-semibold">Clima actual</p>
-                    <p className="text-sm text-muted-foreground">Corrientes, Argentina</p>
+                    <p className="text-sm text-muted-foreground">NEA, Argentina</p>
                   </div>
                 </div>
                 <div className="text-right">
@@ -225,22 +339,22 @@ const Index = () => {
                 size="lg"
               >
                 <StarIcon className="mr-2 h-5 w-5" />
-                Generar Tour Personalizado
+                Generar Experiencia Cultural Personalizada
               </Button>
             </CardContent>
           </Card>
         </div>
       </section>
 
-      {/* Slang Translator Section */}
-      <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-muted/30">
+      {/* Cultural Translator Section */}
+      <section id="translator-section" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-muted/30">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12 animate-slide-up">
             <h2 className="text-3xl sm:text-4xl font-bold mb-4 text-foreground">
-              Traductor de Lunfardo Correntino
+              Traductor Cultural NEA
             </h2>
             <p className="text-lg text-muted-foreground">
-              Descubre el significado de las expresiones locales y su contexto cultural
+              Descubre conexiones entre tu cultura y las expresiones del NEA
             </p>
           </div>
 
@@ -248,16 +362,16 @@ const Index = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <ChatBubbleIcon className="h-5 w-5 text-secondary" />
-                Traductor Cultural
+                Traductor Cultural con Puentes
               </CardTitle>
               <CardDescription>
-                Escribe una palabra o frase correntina para conocer su significado
+                Escribe una palabra o frase del NEA para descubrir su significado y conexiones culturales
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="flex gap-4">
                 <Input
-                  placeholder="Ej: che, mitaí, kurepi..."
+                  placeholder="Ej: che, mate, mitaí, sapucai..."
                   value={slangInput}
                   onChange={(e) => setSlangInput(e.target.value)}
                   className="flex-1"
@@ -286,16 +400,48 @@ const Index = () => {
                       <p className="text-foreground">{translationResult.translation}</p>
                     </div>
                     <div>
-                      <h4 className="font-semibold text-secondary mb-2">Explicación cultural:</h4>
+                      <h4 className="font-semibold text-secondary mb-2">Contexto cultural NEA:</h4>
                       <p className="text-muted-foreground">{translationResult.explanation}</p>
                     </div>
                     <div>
                       <h4 className="font-semibold text-secondary mb-2">Ejemplo de uso:</h4>
                       <p className="text-foreground italic">"{translationResult.example}"</p>
                     </div>
+                    {translationResult.culturalBridge && (
+                      <div className="border-t pt-4 mt-4">
+                        <h4 className="font-semibold text-accent mb-2 flex items-center gap-2">
+                          <PersonIcon className="h-4 w-4" />
+                          {translationResult.culturalBridge}
+                        </h4>
+                        <p className="text-foreground bg-accent/10 p-3 rounded-lg border-l-4 border-accent">
+                          {translationResult.comparison}
+                        </p>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               )}
+
+              {/* Popular suggestions */}
+              <div className="text-center">
+                <p className="text-sm text-muted-foreground mb-3">Palabras populares para explorar:</p>
+                <div className="flex flex-wrap justify-center gap-2">
+                  {['che', 'mate', 'mitaí', 'sapucai'].map((word) => (
+                    <Button
+                      key={word}
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setSlangInput(word);
+                        handleTranslate();
+                      }}
+                      className="text-xs"
+                    >
+                      {word}
+                    </Button>
+                  ))}
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>
