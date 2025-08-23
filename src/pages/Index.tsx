@@ -14,32 +14,14 @@ import { userService, supabase } from '@/lib/supabase';
 import neaRiversideImage from '@/assets/corrientes-riverside-sunset.jpg';
 
 const Index = () => {
-  const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
-  const [selectedTime, setSelectedTime] = useState('');
-  const [selectedStartingPoint, setSelectedStartingPoint] = useState('');
   const [slangInput, setSlangInput] = useState('');
   const [name, setName] = useState('');
   const [origin, setOrigin] = useState('');
   const [neaDestination, setNeaDestination] = useState('');
-  const [email, setEmail] = useState('');
-  const [culturalExperience, setCulturalExperience] = useState('');
   const [translationResult, setTranslationResult] = useState<GeminiTranslationResponse | null>(null);
   const [isTranslating, setIsTranslating] = useState(false);
-
-  const interests = [
-    { id: 'historia', label: 'Historia' },
-    { id: 'gastronomia', label: 'Gastronomía' },
-    { id: 'cultura', label: 'Cultura' },
-    { id: 'fotografia', label: 'Fotografía' },
-    { id: 'familia', label: 'Familia' }
-  ];
-
-  const timeOptions = [
-    { value: '2h', label: '2 horas' },
-    { value: '4h', label: '4 horas' },
-    { value: '1day', label: '1 día completo' },
-    { value: '2+days', label: '2+ días' }
-  ];
+  const [culturalExperience, setCulturalExperience] = useState<any>(null);
+  const [isGeneratingExperience, setIsGeneratingExperience] = useState(false);
 
   const neaDestinations = [
     { value: 'corrientes', label: 'Corrientes' },
@@ -47,27 +29,6 @@ const Index = () => {
     { value: 'posadas', label: 'Posadas' },
     { value: 'formosa', label: 'Formosa' }
   ];
-
-  const culturalExperiences = [
-    { value: 'similar', label: 'Similar a mi cultura' },
-    { value: 'different', label: 'Completamente diferente' },
-    { value: 'mixed', label: 'Experiencia mixta' }
-  ];
-
-  const startingPoints = [
-    { value: 'plaza-principal', label: 'Plaza Principal' },
-    { value: 'costanera', label: 'Costanera/Rivera' },
-    { value: 'centro-historico', label: 'Centro Histórico' },
-    { value: 'terminal', label: 'Terminal de Ómnibus' }
-  ];
-
-  const handleInterestChange = (interestId: string, checked: boolean) => {
-    if (checked) {
-      setSelectedInterests([...selectedInterests, interestId]);
-    } else {
-      setSelectedInterests(selectedInterests.filter(id => id !== interestId));
-    }
-  };
 
   const handleTranslate = async () => {
     if (!slangInput.trim()) return;
@@ -101,26 +62,45 @@ const Index = () => {
   };
 
   const handleBuildTour = async () => {
-    if (!name || !email || !origin) {
-      alert('Por favor completa tu nombre, email y origen para generar tu experiencia cultural.');
+    if (!name.trim() || !origin.trim() || !neaDestination) {
+      alert('Por favor completa todos los campos para generar tu experiencia cultural.');
       return;
     }
 
+    setIsGeneratingExperience(true);
+    setCulturalExperience(null);
+
     try {
-      // Save user profile to Supabase
-      await userService.upsertProfile({
-        name,
-        email,
-        origin,
-        nea_destination: neaDestination,
-        cultural_experience: culturalExperience,
-        interests: selectedInterests
+      console.log('🤖 Generating cultural experience with Gemini...');
+      
+      // ONE single call to Gemini for cultural experience
+      const experience = await geminiService.generateCulturalExperience({
+        name: name.trim(),
+        origin: origin.trim(),
+        destination: neaDestination
       });
       
-      alert('¡Perfil guardado! La funcionalidad de tours inteligentes se lanzará pronto.');
+      setCulturalExperience(experience);
+      
+      // Save to Supabase in background (don't block UI)
+      try {
+        await userService.upsertProfile({
+          name: name.trim(),
+          email: `${name.trim().toLowerCase().replace(/\s+/g, '')}@temp-user.com`,
+          origin: origin.trim(),
+          nea_destination: neaDestination,
+          cultural_experience: 'mixed',
+          interests: []
+        });
+      } catch (saveError) {
+        console.warn('Profile save failed, but experience was generated:', saveError);
+      }
+      
     } catch (error) {
-      console.error('Error saving profile:', error);
-      alert('¡Funcionalidad en desarrollo! Tu tour inteligente se creará pronto.');
+      console.error('Error generating cultural experience:', error);
+      alert(`Error al generar tu experiencia cultural. Por favor intenta de nuevo en unos momentos.`);
+    } finally {
+      setIsGeneratingExperience(false);
     }
   };
 
@@ -166,7 +146,7 @@ const Index = () => {
                 Constructor de Experiencia Cultural NEA
               </h2>
               <p className="text-base sm:text-lg text-muted-foreground px-2">
-                Cuéntanos de dónde vienes y qué te interesa para crear puentes culturales únicos
+                La IA creará actividades personalizadas basadas en tu origen cultural y destino elegido
               </p>
             </div>
           </AnimatedSection>
@@ -179,179 +159,162 @@ const Index = () => {
                   Configuración de Experiencia Cultural
                 </CardTitle>
                 <CardDescription className="text-sm sm:text-base">
-                  Comparte tu origen cultural para crear conexiones personalizadas con el NEA
+                  Solo necesitamos 3 datos esenciales para generar tu experiencia perfecta
                 </CardDescription>
               </CardHeader>
               <CardContent className="p-4 sm:p-6 space-y-6 sm:space-y-8">
-                {/* Personal Information */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-                  <div>
-                    <Label htmlFor="name" className="text-sm sm:text-base font-semibold mb-2 block">
-                      Mi nombre
-                    </Label>
-                    <Input
-                      id="name"
-                      placeholder="¿Cómo te llamas?"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      className="h-10 sm:h-11"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="email" className="text-sm sm:text-base font-semibold mb-2 block">
-                      Email
-                    </Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="tu@email.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="h-10 sm:h-11"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-                  <div>
-                    <Label htmlFor="origin" className="text-sm sm:text-base font-semibold mb-2 block">
-                      Vengo de (país/región)
-                    </Label>
-                    <Input
-                      id="origin"
-                      placeholder="Ej: Italia, México, Japón..."
-                      value={origin}
-                      onChange={(e) => setOrigin(e.target.value)}
-                      className="h-10 sm:h-11"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="nea-destination" className="text-sm sm:text-base font-semibold mb-2 block">
-                      Destino en NEA
-                    </Label>
-                    <Select value={neaDestination} onValueChange={setNeaDestination}>
-                      <SelectTrigger className="h-10 sm:h-11">
-                        <SelectValue placeholder="Elige tu destino" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {neaDestinations.map((destination) => (
-                          <SelectItem key={destination.value} value={destination.value}>
-                            {destination.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                {/* Cultural Experience Preference */}
+                {/* Essential Information Only */}
                 <div>
-                  <Label className="text-sm sm:text-base font-semibold mb-3 sm:mb-4 block">
-                    Experiencia cultural preferida
+                  <Label htmlFor="name" className="text-sm sm:text-base font-semibold mb-2 block">
+                    Tu nombre
                   </Label>
-                  <Select value={culturalExperience} onValueChange={setCulturalExperience}>
+                  <Input
+                    id="name"
+                    placeholder="¿Cómo te llamas?"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="h-10 sm:h-11"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="origin" className="text-sm sm:text-base font-semibold mb-2 block">
+                    ¿De dónde vienes?
+                  </Label>
+                  <Input
+                    id="origin"
+                    placeholder="Ej: Italia, México, Brasil, España, Francia..."
+                    value={origin}
+                    onChange={(e) => setOrigin(e.target.value)}
+                    className="h-10 sm:h-11"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    La IA personalizará actividades según tu trasfondo cultural
+                  </p>
+                </div>
+
+                <div>
+                  <Label htmlFor="nea-destination" className="text-sm sm:text-base font-semibold mb-2 block">
+                    ¿Qué ciudad del NEA quieres visitar?
+                  </Label>
+                  <Select value={neaDestination} onValueChange={setNeaDestination}>
                     <SelectTrigger className="h-10 sm:h-11">
-                      <SelectValue placeholder="¿Qué tipo de experiencia buscas?" />
+                      <SelectValue placeholder="Selecciona tu destino" />
                     </SelectTrigger>
                     <SelectContent>
-                      {culturalExperiences.map((experience) => (
-                        <SelectItem key={experience.value} value={experience.value}>
-                          {experience.label}
+                      {neaDestinations.map((destination) => (
+                        <SelectItem key={destination.value} value={destination.value}>
+                          {destination.label}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Cada ciudad tiene actividades únicas que conectaremos con tu cultura
+                  </p>
                 </div>
 
-                {/* Weather Display */}
-                <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <SunIcon className="h-6 w-6 text-accent" />
-                    <div>
-                      <p className="font-semibold">Clima actual</p>
-                      <p className="text-sm text-muted-foreground">NEA, Argentina</p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-2xl font-bold">34°C</p>
-                    <div className="flex gap-2">
-                      <Badge variant="secondary">Soleado</Badge>
-                      <Badge variant="outline">UV Alto</Badge>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Tourist Interests */}
-                <div>
-                  <Label className="text-sm sm:text-base font-semibold mb-3 sm:mb-4 block">
-                    Intereses turísticos
-                  </Label>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
-                    {interests.map((interest) => (
-                      <div key={interest.id} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={interest.id}
-                          checked={selectedInterests.includes(interest.id)}
-                          onCheckedChange={(checked) => 
-                            handleInterestChange(interest.id, checked as boolean)
-                          }
-                        />
-                        <Label htmlFor={interest.id} className="text-xs sm:text-sm">
-                          {interest.label}
-                        </Label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Available Time */}
-                <div>
-                  <Label htmlFor="time" className="text-sm sm:text-base font-semibold mb-3 sm:mb-4 block">
-                    <ClockIcon className="inline h-3 w-3 sm:h-4 sm:w-4 mr-2" />
-                    Tiempo disponible
-                  </Label>
-                  <Select value={selectedTime} onValueChange={setSelectedTime}>
-                    <SelectTrigger className="w-full h-10 sm:h-11">
-                      <SelectValue placeholder="Selecciona la duración" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {timeOptions.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
-                          {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Starting Point */}
-                <div>
-                  <Label htmlFor="starting-point" className="text-sm sm:text-base font-semibold mb-3 sm:mb-4 block">
-                    <PersonIcon className="inline h-3 w-3 sm:h-4 sm:w-4 mr-2" />
-                    Punto de partida
-                  </Label>
-                  <Select value={selectedStartingPoint} onValueChange={setSelectedStartingPoint}>
-                    <SelectTrigger className="w-full h-10 sm:h-11">
-                      <SelectValue placeholder="Elige dónde comenzar" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {startingPoints.map((point) => (
-                        <SelectItem key={point.value} value={point.value}>
-                          {point.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                <div className="bg-accent/10 p-4 rounded-lg border-l-4 border-accent">
+                  <h4 className="font-semibold text-accent mb-2 flex items-center gap-2">
+                    <StarIcon className="h-4 w-4" />
+                    ¿Qué obtienes?
+                  </h4>
+                  <ul className="text-sm text-muted-foreground space-y-1">
+                    <li>• Actividades que conecten tu cultura con el NEA</li>
+                    <li>• Lugares auténticos recomendados por IA</li>
+                    <li>• Experiencias adaptadas a tu trasfondo cultural</li>
+                  </ul>
                 </div>
 
                 <Button 
                   onClick={handleBuildTour}
                   className="w-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-soft py-3 sm:py-4 text-base sm:text-lg"
                   size="lg"
+                  disabled={!name.trim() || !origin.trim() || !neaDestination || isGeneratingExperience}
                 >
-                  <StarIcon className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
-                  Generar Experiencia Cultural Personalizada
+                  {isGeneratingExperience ? (
+                    <>
+                      <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                      Generando Experiencia con IA...
+                    </>
+                  ) : (
+                    <>
+                      <StarIcon className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+                      Generar Experiencia Cultural con IA
+                    </>
+                  )}
                 </Button>
+
+                {/* Cultural Experience Result */}
+                {culturalExperience && (
+                  <AnimatedSection animation="fade-in" delay={100}>
+                    <Card className="bg-gradient-to-br from-primary/5 to-secondary/5 border-primary/20 mt-6">
+                      <CardHeader>
+                        <CardTitle className="text-primary text-lg sm:text-xl">
+                          🌍 Tu Experiencia Cultural Personalizada
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div className="bg-accent/10 p-4 rounded-lg border-l-4 border-accent">
+                          <p className="font-medium text-accent">{culturalExperience.greeting}</p>
+                        </div>
+                        
+                        <div>
+                          <h4 className="font-semibold text-secondary mb-2">🔗 Conexión Cultural:</h4>
+                          <p className="text-sm text-muted-foreground">{culturalExperience.culturalConnection}</p>
+                        </div>
+                        
+                        <div>
+                          <h4 className="font-semibold text-secondary mb-2">🎯 Actividades Recomendadas:</h4>
+                          <ul className="space-y-1">
+                            {culturalExperience.recommendedActivities?.map((activity: string, index: number) => (
+                              <li key={index} className="text-sm text-foreground flex items-start gap-2">
+                                <span className="text-accent">•</span>
+                                {activity}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                        
+                        <div>
+                          <h4 className="font-semibold text-secondary mb-2">✨ Experiencias Únicas:</h4>
+                          <ul className="space-y-1">
+                            {culturalExperience.uniqueExperiences?.map((experience: string, index: number) => (
+                              <li key={index} className="text-sm text-foreground flex items-start gap-2">
+                                <span className="text-accent">•</span>
+                                {experience}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                        
+                        <div>
+                          <h4 className="font-semibold text-secondary mb-2">🌉 Puentes Culturales:</h4>
+                          <ul className="space-y-1">
+                            {culturalExperience.culturalBridges?.map((bridge: string, index: number) => (
+                              <li key={index} className="text-sm text-foreground flex items-start gap-2">
+                                <span className="text-accent">•</span>
+                                {bridge}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                        
+                        <div>
+                          <h4 className="font-semibold text-secondary mb-2">💡 Consejos Prácticos:</h4>
+                          <ul className="space-y-1">
+                            {culturalExperience.practicalTips?.map((tip: string, index: number) => (
+                              <li key={index} className="text-sm text-foreground flex items-start gap-2">
+                                <span className="text-accent">•</span>
+                                {tip}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </AnimatedSection>
+                )}
               </CardContent>
             </Card>
           </AnimatedSection>

@@ -25,6 +25,21 @@ export interface GeminiTranslationResponse {
   comparison: string;
 }
 
+export interface GeminiCulturalExperienceRequest {
+  name: string;
+  origin: string;
+  destination: string;
+}
+
+export interface GeminiCulturalExperienceResponse {
+  greeting: string;
+  culturalConnection: string;
+  recommendedActivities: string[];
+  uniqueExperiences: string[];
+  culturalBridges: string[];
+  practicalTips: string[];
+}
+
 class GeminiService {
   // Helper function to suggest similar words when one is not found
   private getSuggestedWords(searchWord: string): string[] {
@@ -278,6 +293,107 @@ class GeminiService {
     } catch (error) {
       console.error('Error in getEnhancedTranslation:', error);
       throw error;
+    }
+  }
+
+  async generateCulturalExperience(request: GeminiCulturalExperienceRequest): Promise<GeminiCulturalExperienceResponse> {
+    const { name, origin, destination } = request;
+    
+    const destinationNames = {
+      corrientes: 'Corrientes',
+      resistencia: 'Resistencia', 
+      posadas: 'Posadas',
+      formosa: 'Formosa'
+    };
+    
+    const fullDestinationName = destinationNames[destination as keyof typeof destinationNames] || destination;
+
+    const prompt = `
+    Eres un experto en turismo cultural del NEA (Noreste Argentino) especializado en crear experiencias personalizadas.
+
+    Datos del usuario:
+    - Nombre: ${name}
+    - Origen cultural: ${origin}
+    - Destino elegido: ${fullDestinationName}, NEA Argentina
+
+    Crea una experiencia cultural personalizada en formato JSON exacto con estas claves:
+
+    {
+      "greeting": "Saludo personalizado y cálido para ${name}",
+      "culturalConnection": "Explicación breve de conexiones entre la cultura de ${origin} y ${fullDestinationName}",
+      "recommendedActivities": [
+        "Actividad 1 específica de ${fullDestinationName} que conecte con ${origin}",
+        "Actividad 2 específica de ${fullDestinationName} que conecte con ${origin}",
+        "Actividad 3 específica de ${fullDestinationName} que conecte con ${origin}"
+      ],
+      "uniqueExperiences": [
+        "Experiencia única 1 que solo se puede vivir en ${fullDestinationName}",
+        "Experiencia única 2 que solo se puede vivir en ${fullDestinationName}"
+      ],
+      "culturalBridges": [
+        "Puente cultural 1: similitudes entre ${origin} y NEA",
+        "Puente cultural 2: diferencias enriquecedoras entre ${origin} y NEA"
+      ],
+      "practicalTips": [
+        "Consejo práctico 1 específico para alguien de ${origin}",
+        "Consejo práctico 2 específico para alguien de ${origin}"
+      ]
+    }
+
+    IMPORTANTE:
+    - Responde SOLO en formato JSON válido
+    - Usa conocimiento real sobre ${fullDestinationName} y cultura de ${origin}
+    - Sé específico y auténtico, evita generalidades
+    - Incluye aspectos únicos del NEA (guaraní, chamamé, gastronomía, río Paraná, etc.)
+    - Haz conexiones culturales reales y significativas
+    `;
+
+    try {
+      const response = await this.callGeminiAPI(prompt);
+      
+      // Try to parse JSON response
+      const jsonMatch = response.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) {
+        throw new Error('No JSON found in Gemini response');
+      }
+
+      const parsedResponse = JSON.parse(jsonMatch[0]);
+      
+      // Validate required fields
+      const requiredFields = ['greeting', 'culturalConnection', 'recommendedActivities', 'uniqueExperiences', 'culturalBridges', 'practicalTips'];
+      for (const field of requiredFields) {
+        if (!parsedResponse[field]) {
+          throw new Error(`Missing required field: ${field}`);
+        }
+      }
+
+      return parsedResponse as GeminiCulturalExperienceResponse;
+
+    } catch (error) {
+      console.error('Error generating cultural experience:', error);
+      
+      // Return fallback response
+      return {
+        greeting: `¡Hola ${name}! Bienvenido/a a tu aventura cultural en ${fullDestinationName}`,
+        culturalConnection: `Tu origen de ${origin} tiene conexiones fascinantes con la cultura del NEA que exploraremos juntos.`,
+        recommendedActivities: [
+          `Visitar el centro histórico de ${fullDestinationName} y comparar con arquitectura de ${origin}`,
+          `Disfrutar de la gastronomía local y encontrar sabores que te recuerden a casa`,
+          `Participar en festivales culturales que celebran las tradiciones del NEA`
+        ],
+        uniqueExperiences: [
+          `Navegar por el río Paraná y experimentar la conexión única con la naturaleza`,
+          `Escuchar chamamé en vivo y aprender sobre esta música tradicional`
+        ],
+        culturalBridges: [
+          `Ambas culturas valoran la importancia de la familia y las tradiciones`,
+          `El NEA y ${origin} comparten el amor por las celebraciones comunitarias`
+        ],
+        practicalTips: [
+          `Como vienes de ${origin}, te recomendamos probar el mate - es nuestro ritual social más importante`,
+          `El clima del NEA puede ser diferente a ${origin}, lleva ropa cómoda y liviana`
+        ]
+      };
     }
   }
 }
