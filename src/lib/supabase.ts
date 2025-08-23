@@ -21,6 +21,8 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 export interface Translation {
   id: string;
   word: string;
+  user_origin: string;
+  target_language: string;
   translation: string;
   explanation: string;
   example: string;
@@ -54,12 +56,53 @@ export interface TourExperience {
 
 // Helper functions for common operations
 export const translationService = {
-  // Get translation by word
-  async getTranslation(word: string): Promise<Translation | null> {
-    const { data, error } = await supabase
+  // Get translation by word, prioritizing user origin and target language
+  async getTranslation(word: string, userOrigin?: string, targetLanguage?: string): Promise<Translation | null> {
+    let query = supabase
       .from('translations')
       .select('*')
-      .ilike('word', word)
+      .ilike('word', word);
+
+    // Priority 1: Try to find exact match with user origin and target language
+    if (userOrigin && targetLanguage) {
+      const { data: exactMatch } = await query
+        .eq('user_origin', userOrigin.toLowerCase())
+        .eq('target_language', targetLanguage)
+        .single();
+      
+      if (exactMatch) {
+        console.log(`✅ Found exact translation for ${word} (${userOrigin} -> ${targetLanguage})`);
+        return exactMatch;
+      }
+    }
+
+    // Priority 2: Try to find match with user origin (any language)
+    if (userOrigin) {
+      const { data: originMatch } = await query
+        .eq('user_origin', userOrigin.toLowerCase())
+        .single();
+      
+      if (originMatch) {
+        console.log(`✅ Found origin-specific translation for ${word} (${userOrigin})`);
+        return originMatch;
+      }
+    }
+
+    // Priority 3: Try to find match with target language (any origin)
+    if (targetLanguage) {
+      const { data: langMatch } = await query
+        .eq('target_language', targetLanguage)
+        .single();
+      
+      if (langMatch) {
+        console.log(`✅ Found language-specific translation for ${word} (${targetLanguage})`);
+        return langMatch;
+      }
+    }
+
+    // Priority 4: Fall back to default/international version
+    const { data: defaultMatch, error } = await query
+      .eq('user_origin', 'internacional')
       .single();
     
     if (error) {
@@ -67,7 +110,11 @@ export const translationService = {
       return null;
     }
     
-    return data;
+    if (defaultMatch) {
+      console.log(`✅ Found default translation for ${word}`);
+    }
+    
+    return defaultMatch;
   },
 
   // Search translations by partial word match
@@ -86,11 +133,24 @@ export const translationService = {
     return data || [];
   },
 
-  // Add new translation
+  // Add new translation with user origin and target language
   async addTranslation(translation: Omit<Translation, 'id' | 'created_at' | 'updated_at'>): Promise<Translation | null> {
+    // Ensure we have user_origin and target_language
+    const translationData = {
+      ...translation,
+      user_origin: translation.user_origin || 'internacional',
+      target_language: translation.target_language || 'español'
+    };
+
+    console.log('💾 Saving translation to database:', {
+      word: translationData.word,
+      user_origin: translationData.user_origin,
+      target_language: translationData.target_language
+    });
+
     const { data, error } = await supabase
       .from('translations')
-      .insert(translation)
+      .insert(translationData)
       .select()
       .single();
     
@@ -99,6 +159,7 @@ export const translationService = {
       return null;
     }
     
+    console.log('✅ Translation saved successfully');
     return data;
   }
 };

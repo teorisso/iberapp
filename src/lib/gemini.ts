@@ -156,30 +156,79 @@ class GeminiService {
   async translateWithCulturalContext(request: GeminiTranslationRequest): Promise<GeminiTranslationResponse> {
     const { word, userOrigin = "internacional", culturalContext = "" } = request;
 
+    // Map countries to their primary languages for translation
+    const countryLanguageMap: { [key: string]: { lang: string, langCode: string } } = {
+      'españa': { lang: 'español', langCode: 'es' },
+      'mexico': { lang: 'español', langCode: 'es' },
+      'brasil': { lang: 'portugués', langCode: 'pt' },
+      'italia': { lang: 'italiano', langCode: 'it' },
+      'francia': { lang: 'francés', langCode: 'fr' },
+      'alemania': { lang: 'alemán', langCode: 'de' },
+      'inglaterra': { lang: 'inglés', langCode: 'en' },
+      'estados unidos': { lang: 'inglés', langCode: 'en' },
+      'china': { lang: 'chino mandarín', langCode: 'zh' },
+      'japon': { lang: 'japonés', langCode: 'ja' },
+      'corea': { lang: 'coreano', langCode: 'ko' },
+      'rusia': { lang: 'ruso', langCode: 'ru' },
+      'portugal': { lang: 'portugués', langCode: 'pt' },
+      'holanda': { lang: 'holandés', langCode: 'nl' },
+      'suecia': { lang: 'sueco', langCode: 'sv' },
+      'noruega': { lang: 'noruego', langCode: 'no' },
+      'finlandia': { lang: 'finlandés', langCode: 'fi' },
+      'grecia': { lang: 'griego', langCode: 'el' },
+      'turquia': { lang: 'turco', langCode: 'tr' },
+      'india': { lang: 'hindi', langCode: 'hi' },
+      'tailandia': { lang: 'tailandés', langCode: 'th' },
+      'vietnam': { lang: 'vietnamita', langCode: 'vi' },
+      'filipinas': { lang: 'filipino', langCode: 'tl' },
+      'indonesia': { lang: 'indonesio', langCode: 'id' },
+      'malasia': { lang: 'malayo', langCode: 'ms' },
+      'singapur': { lang: 'inglés', langCode: 'en' },
+      'australia': { lang: 'inglés', langCode: 'en' },
+      'nueva zelanda': { lang: 'inglés', langCode: 'en' },
+      'canada': { lang: 'inglés', langCode: 'en' },
+      'sudafrica': { lang: 'inglés', langCode: 'en' }
+    };
+
+    const originKey = userOrigin.toLowerCase().trim();
+    const targetLanguage = countryLanguageMap[originKey] || { lang: 'español', langCode: 'es' };
+
     const prompt = `
-    Eres un experto en cultura del NEA (Noreste Argentino) especializado en traducciones culturales.
+    Eres un experto en cultura del NEA (Noreste Argentino) especializado en traducciones culturales multilingües.
 
     Analiza la palabra/expresión: "${word}"
     Usuario viene de: ${userOrigin}
+    Idioma objetivo: ${targetLanguage.lang}
     Contexto adicional: ${culturalContext}
+
+    IMPORTANTE: Responde COMPLETAMENTE en ${targetLanguage.lang}. Todo el JSON debe estar traducido a ${targetLanguage.lang}.
 
     Proporciona una respuesta en formato JSON exacto con estas claves:
 
     {
       "word": "${word}",
-      "translation": "Traducción clara y concisa",
-      "explanation": "Explicación del contexto cultural del NEA, su origen y uso actual",
-      "example": "Ejemplo práctico de uso en una oración típica del NEA",
-      "culturalBridge": "En mi cultura/lugar de origen (${userOrigin})",
-      "comparison": "Comparación específica con expresiones similares de ${userOrigin} o culturas mundiales, mostrando similitudes y diferencias culturales. Usa formato: Como X en [país] (contexto) • Como Y en [país] (contexto) • Diferente a Z porque [razón]"
+      "translation": "Traducción clara y concisa de la palabra del NEA al ${targetLanguage.lang}",
+      "explanation": "Explicación completa del contexto cultural del NEA, su origen y uso actual - TODO en ${targetLanguage.lang}",
+      "example": "Ejemplo práctico de uso en una oración típica del NEA - explicado y traducido al ${targetLanguage.lang}",
+      "culturalBridge": "En mi cultura/lugar de origen (${userOrigin}) - en ${targetLanguage.lang}",
+      "comparison": "Comparación específica con expresiones similares de ${userOrigin} - TODO explicado en ${targetLanguage.lang}. Usa formato cultural apropiado para ${userOrigin}"
     }
 
-    IMPORTANTE:
+    REGLAS CRÍTICAS:
+    - TODO el contenido debe estar en ${targetLanguage.lang}
+    - Si es español/México: mantén en español
+    - Si es inglés: traduce TODO al inglés
+    - Si es portugués: traduce TODO al portugués
+    - Si es italiano: traduce TODO al italiano
+    - Si es francés: traduce TODO al francés
+    - Si es alemán: traduce TODO al alemán
+    - Si es chino: traduce TODO al chino
+    - Si es japonés: traduce TODO al japonés
     - Responde SOLO en formato JSON válido
-    - Si no conoces la palabra, indica "Palabra no encontrada" en translation
-    - Enfócate en aspectos culturales únicos del NEA
-    - Incluye referencias guaraníes si aplica
-    - Haz comparaciones específicas con la cultura de origen del usuario
+    - Si no conoces la palabra, indica "Palabra no encontrada" pero en ${targetLanguage.lang}
+    - Enfócate en aspectos culturales únicos del NEA pero explícalos en ${targetLanguage.lang}
+    - Incluye referencias guaraníes si aplica pero explícalas en ${targetLanguage.lang}
+    - Haz comparaciones culturales reales y específicas de ${userOrigin} en ${targetLanguage.lang}
     `;
 
     try {
@@ -206,14 +255,61 @@ class GeminiService {
     } catch (error) {
       console.error('Error calling Gemini API:', error);
       
-      // Return fallback response
+      // Return fallback response completely in target language
+      const fallbackMessages = {
+        'español': {
+          translation: 'No se pudo procesar la traducción',
+          explanation: 'Error al conectar con el servicio de traducción cultural.',
+          example: 'Intenta de nuevo en unos momentos.',
+          culturalBridge: `En mi cultura/lugar de origen (${userOrigin})`,
+          comparison: 'No disponible temporalmente. Verifica tu conexión a internet.'
+        },
+        'inglés': {
+          translation: 'Could not process translation',
+          explanation: 'Error connecting to the cultural translation service.',
+          example: 'Please try again in a few moments.',
+          culturalBridge: `In my culture/place of origin (${userOrigin})`,
+          comparison: 'Temporarily unavailable. Check your internet connection.'
+        },
+        'portugués': {
+          translation: 'Não foi possível processar a tradução',
+          explanation: 'Erro ao conectar com o serviço de tradução cultural.',
+          example: 'Tente novamente em alguns momentos.',
+          culturalBridge: `Na minha cultura/local de origem (${userOrigin})`,
+          comparison: 'Temporariamente indisponível. Verifique sua conexão com a internet.'
+        },
+        'francés': {
+          translation: 'Impossible de traiter la traduction',
+          explanation: 'Erreur de connexion au service de traduction culturelle.',
+          example: 'Veuillez réessayer dans quelques instants.',
+          culturalBridge: `Dans ma culture/lieu d'origine (${userOrigin})`,
+          comparison: 'Temporairement indisponible. Vérifiez votre connexion internet.'
+        },
+        'italiano': {
+          translation: 'Impossibile elaborare la traduzione',
+          explanation: 'Errore di connessione al servizio di traduzione culturale.',
+          example: 'Riprova tra qualche momento.',
+          culturalBridge: `Nella mia cultura/luogo di origine (${userOrigin})`,
+          comparison: 'Temporaneamente non disponibile. Controlla la connessione internet.'
+        },
+        'alemán': {
+          translation: 'Übersetzung konnte nicht verarbeitet werden',
+          explanation: 'Fehler beim Verbinden mit dem kulturellen Übersetzungsdienst.',
+          example: 'Bitte versuchen Sie es in ein paar Augenblicken erneut.',
+          culturalBridge: `In meiner Kultur/Herkunftsort (${userOrigin})`,
+          comparison: 'Vorübergehend nicht verfügbar. Überprüfen Sie Ihre Internetverbindung.'
+        }
+      };
+
+      const messages = fallbackMessages[targetLanguage.lang as keyof typeof fallbackMessages] || fallbackMessages['español'];
+
       return {
         word,
-        translation: 'No se pudo procesar la traducción',
-        explanation: 'Error al conectar con el servicio de traducción cultural.',
-        example: 'Intenta de nuevo en unos momentos.',
-        culturalBridge: `En mi cultura/lugar de origen (${userOrigin})`,
-        comparison: 'No disponible temporalmente. Verifica tu conexión a internet.'
+        translation: messages.translation,
+        explanation: messages.explanation,
+        example: messages.example,
+        culturalBridge: messages.culturalBridge,
+        comparison: messages.comparison
       };
     }
   }
@@ -224,8 +320,25 @@ class GeminiService {
     culturalContext?: string
   ): Promise<GeminiTranslationResponse> {
     try {
-      // First, try to get from Supabase database
-      const dbTranslation = await translationService.getTranslation(word);
+      // Map country to language for database operations
+      const countryLanguageMap: { [key: string]: { lang: string, langCode: string } } = {
+        'españa': { lang: 'español', langCode: 'es' },
+        'mexico': { lang: 'español', langCode: 'es' },
+        'brasil': { lang: 'portugués', langCode: 'pt' },
+        'italia': { lang: 'italiano', langCode: 'it' },
+        'francia': { lang: 'francés', langCode: 'fr' },
+        'alemania': { lang: 'alemán', langCode: 'de' },
+        'inglaterra': { lang: 'inglés', langCode: 'en' },
+        'estados unidos': { lang: 'inglés', langCode: 'en' },
+        'china': { lang: 'chino mandarín', langCode: 'zh' },
+        'japon': { lang: 'japonés', langCode: 'ja' }
+      };
+
+      const originKey = userOrigin?.toLowerCase().trim() || 'internacional';
+      const targetLanguage = countryLanguageMap[originKey]?.lang || 'español';
+
+      // First, try to get from Supabase database with user origin and language
+      const dbTranslation = await translationService.getTranslation(word, originKey, targetLanguage);
       
       if (dbTranslation) {
         console.log('✅ Found translation in database, returning cached version');
@@ -263,13 +376,15 @@ class GeminiService {
         try {
           await translationService.addTranslation({
             word: geminiResponse.word,
+            user_origin: originKey,
+            target_language: targetLanguage,
             translation: geminiResponse.translation,
             explanation: geminiResponse.explanation,
             example: geminiResponse.example,
             cultural_bridge: geminiResponse.culturalBridge,
             comparison: geminiResponse.comparison
           });
-          console.log('✅ Saved new translation to database to avoid future API calls');
+          console.log(`✅ Saved new translation to database (${originKey} -> ${targetLanguage}) to avoid future API calls`);
         } catch (saveError) {
           console.warn('Could not save translation to database:', saveError);
         }
@@ -280,13 +395,78 @@ class GeminiService {
         
         // Final fallback: Return a helpful message suggesting available words
         const suggestedWords = this.getSuggestedWords(word);
+        
+        // Get target language for fallback messages
+        const countryLanguageMap: { [key: string]: { lang: string, langCode: string } } = {
+          'españa': { lang: 'español', langCode: 'es' },
+          'mexico': { lang: 'español', langCode: 'es' },
+          'brasil': { lang: 'portugués', langCode: 'pt' },
+          'italia': { lang: 'italiano', langCode: 'it' },
+          'francia': { lang: 'francés', langCode: 'fr' },
+          'alemania': { lang: 'alemán', langCode: 'de' },
+          'inglaterra': { lang: 'inglés', langCode: 'en' },
+          'estados unidos': { lang: 'inglés', langCode: 'en' },
+          'china': { lang: 'chino mandarín', langCode: 'zh' },
+          'japon': { lang: 'japonés', langCode: 'ja' }
+        };
+        
+        const originKey = userOrigin?.toLowerCase().trim() || '';
+        const targetLanguage = countryLanguageMap[originKey] || { lang: 'español', langCode: 'es' };
+        
+        const notFoundMessages = {
+          'español': {
+            translation: 'Palabra no encontrada en nuestra base de datos',
+            explanation: `La palabra "${word}" no está disponible en nuestra base de datos del NEA. Puede ser que no sea una expresión típica de la región, que esté mal escrita, o que aún no la hayamos agregado a nuestra colección.`,
+            example: `Prueba con estas palabras del NEA: ${suggestedWords.map(w => `"${w}"`).join(', ')}`,
+            culturalBridge: userOrigin ? `En mi cultura/lugar de origen (${userOrigin})` : "En mi cultura/lugar de origen",
+            comparison: `Cada palabra del NEA tiene conexiones culturales únicas. Las palabras ${suggestedWords.join(', ')} están disponibles y muestran puentes culturales fascinantes con diferentes regiones del mundo.`
+          },
+          'inglés': {
+            translation: 'Word not found in our database',
+            explanation: `The word "${word}" is not available in our NEA database. It may not be a typical expression from the region, it could be misspelled, or we haven't added it to our collection yet.`,
+            example: `Try these NEA words: ${suggestedWords.map(w => `"${w}"`).join(', ')}`,
+            culturalBridge: userOrigin ? `In my culture/place of origin (${userOrigin})` : "In my culture/place of origin",
+            comparison: `Each NEA word has unique cultural connections. The words ${suggestedWords.join(', ')} are available and show fascinating cultural bridges with different regions of the world.`
+          },
+          'portugués': {
+            translation: 'Palavra não encontrada em nossa base de dados',
+            explanation: `A palavra "${word}" não está disponível em nossa base de dados do NEA. Pode ser que não seja uma expressão típica da região, esteja mal escrita, ou ainda não a tenhamos adicionado à nossa coleção.`,
+            example: `Experimente estas palavras do NEA: ${suggestedWords.map(w => `"${w}"`).join(', ')}`,
+            culturalBridge: userOrigin ? `Na minha cultura/local de origem (${userOrigin})` : "Na minha cultura/local de origem",
+            comparison: `Cada palavra do NEA tem conexões culturais únicas. As palavras ${suggestedWords.join(', ')} estão disponíveis e mostram pontes culturais fascinantes com diferentes regiões do mundo.`
+          },
+          'francés': {
+            translation: 'Mot non trouvé dans notre base de données',
+            explanation: `Le mot "${word}" n'est pas disponible dans notre base de données NEA. Il se peut qu'il ne s'agisse pas d'une expression typique de la région, qu'il soit mal orthographié, ou que nous ne l'ayons pas encore ajouté à notre collection.`,
+            example: `Essayez ces mots NEA : ${suggestedWords.map(w => `"${w}"`).join(', ')}`,
+            culturalBridge: userOrigin ? `Dans ma culture/lieu d'origine (${userOrigin})` : "Dans ma culture/lieu d'origine",
+            comparison: `Chaque mot NEA a des connexions culturelles uniques. Les mots ${suggestedWords.join(', ')} sont disponibles et montrent des ponts culturels fascinants avec différentes régions du monde.`
+          },
+          'italiano': {
+            translation: 'Parola non trovata nel nostro database',
+            explanation: `La parola "${word}" non è disponibile nel nostro database NEA. Potrebbe non essere un'espressione tipica della regione, essere scritta male, o non averla ancora aggiunta alla nostra collezione.`,
+            example: `Prova queste parole NEA: ${suggestedWords.map(w => `"${w}"`).join(', ')}`,
+            culturalBridge: userOrigin ? `Nella mia cultura/luogo di origine (${userOrigin})` : "Nella mia cultura/luogo di origine",
+            comparison: `Ogni parola NEA ha connessioni culturali uniche. Le parole ${suggestedWords.join(', ')} sono disponibili e mostrano ponti culturali affascinanti con diverse regioni del mondo.`
+          },
+          'alemán': {
+            translation: 'Wort in unserer Datenbank nicht gefunden',
+            explanation: `Das Wort "${word}" ist in unserer NEA-Datenbank nicht verfügbar. Es könnte sein, dass es kein typischer Ausdruck der Region ist, falsch geschrieben wurde oder wir es noch nicht zu unserer Sammlung hinzugefügt haben.`,
+            example: `Probieren Sie diese NEA-Wörter: ${suggestedWords.map(w => `"${w}"`).join(', ')}`,
+            culturalBridge: userOrigin ? `In meiner Kultur/Herkunftsort (${userOrigin})` : "In meiner Kultur/Herkunftsort",
+            comparison: `Jedes NEA-Wort hat einzigartige kulturelle Verbindungen. Die Wörter ${suggestedWords.join(', ')} sind verfügbar und zeigen faszinierende kulturelle Brücken zu verschiedenen Regionen der Welt.`
+          }
+        };
+        
+        const messages = notFoundMessages[targetLanguage.lang as keyof typeof notFoundMessages] || notFoundMessages['español'];
+        
         return {
           word,
-          translation: 'Palabra no encontrada en nuestra base de datos',
-          explanation: `La palabra "${word}" no está disponible en nuestra base de datos del NEA. Puede ser que no sea una expresión típica de la región, que esté mal escrita, o que aún no la hayamos agregado a nuestra colección.`,
-          example: `Prueba con estas palabras del NEA: ${suggestedWords.map(w => `"${w}"`).join(', ')}`,
-          culturalBridge: userOrigin ? `En mi cultura/lugar de origen (${userOrigin})` : "En mi cultura/lugar de origen",
-          comparison: `Cada palabra del NEA tiene conexiones culturales únicas. Las palabras ${suggestedWords.join(', ')} están disponibles y muestran puentes culturales fascinantes con diferentes regiones del mundo.`
+          translation: messages.translation,
+          explanation: messages.explanation,
+          example: messages.example,
+          culturalBridge: messages.culturalBridge,
+          comparison: messages.comparison
         };
       }
 

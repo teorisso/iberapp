@@ -17,6 +17,7 @@ const Index = () => {
   const [slangInput, setSlangInput] = useState('');
   const [name, setName] = useState('');
   const [origin, setOrigin] = useState('');
+  const [translatorOrigin, setTranslatorOrigin] = useState('');
   const [neaDestination, setNeaDestination] = useState('');
   const [translationResult, setTranslationResult] = useState<GeminiTranslationResponse | null>(null);
   const [isTranslating, setIsTranslating] = useState(false);
@@ -39,7 +40,7 @@ const Index = () => {
     try {
       const result = await geminiService.getEnhancedTranslation(
         slangInput.trim(),
-        origin || undefined,
+        translatorOrigin || undefined,
         culturalExperience || undefined
       );
       
@@ -123,31 +124,239 @@ const Index = () => {
               IberApp
             </h1>
             <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl mb-6 sm:mb-8 opacity-90 leading-relaxed px-2">
-              Conecta tu cultura con el NEA. Descubre lugares, traduce jergas y vive una experiencia cultural única con inteligencia artificial.
+              Traduce jergas del NEA con puentes culturales personalizados. Descubre conexiones únicas entre tu cultura y el Noreste Argentino.
             </p>
-            <Button 
-              onClick={() => document.getElementById('translator-section')?.scrollIntoView({ behavior: 'smooth' })}
-              size="lg" 
-              className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg shadow-warm transition-bounce pulse-glow w-full sm:w-auto"
-            >
-              <ChatBubbleIcon className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
-              Prueba el Traductor Cultural
-            </Button>
+                         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+               <Button 
+                 onClick={() => document.getElementById('translator-section')?.scrollIntoView({ behavior: 'smooth' })}
+                 size="lg" 
+                 className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg shadow-warm transition-bounce pulse-glow w-full sm:w-auto"
+               >
+                 <ChatBubbleIcon className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+                 Traductor Cultural
+               </Button>
+               <Button 
+                 onClick={() => document.getElementById('experience-section')?.scrollIntoView({ behavior: 'smooth' })}
+                 size="lg" 
+                 variant="outline"
+                 className="bg-white/10 hover:bg-white/20 text-white border-white/30 font-semibold px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg w-full sm:w-auto"
+               >
+                 <StarIcon className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+                 Experiencia Cultural
+               </Button>
+             </div>
           </div>
         </AnimatedSection>
       </section>
 
-      {/* Tourism Form Section */}
-      <section className="py-12 sm:py-16 md:py-24 px-3 sm:px-6 lg:px-8 warm-gradient">
+      {/* Cultural Translator Section - MAIN FEATURE */}
+      <section id="translator-section" className="py-12 sm:py-16 md:py-24 px-3 sm:px-6 lg:px-8 bg-muted/30">
         <div className="max-w-4xl mx-auto">
           <AnimatedSection animation="fade-up" delay={100}>
             <div className="text-center mb-8 sm:mb-12">
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4 text-foreground">
-                Constructor de Experiencia Cultural NEA
+                🌍 Traductor Cultural NEA
+              </h2>
+              <p className="text-base sm:text-lg text-muted-foreground px-2">
+                <strong>Funcionalidad Principal:</strong> Traduce jergas del NEA completamente a tu idioma con conexiones culturales personalizadas usando IA
+              </p>
+              <div className="mt-4 flex justify-center">
+                <Badge className="bg-primary/20 text-primary border-primary/30 px-4 py-1 text-sm">
+                  ✨ Potenciado por Inteligencia Artificial
+                </Badge>
+              </div>
+            </div>
+          </AnimatedSection>
+
+          <AnimatedSection animation="bounce-in" delay={300}>
+            <Card className="shadow-soft">
+              <CardHeader className="p-4 sm:p-6">
+                <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                  <ChatBubbleIcon className="h-4 w-4 sm:h-5 sm:w-5 text-secondary" />
+                  Traductor Cultural con Puentes
+                </CardTitle>
+                <CardDescription className="text-sm sm:text-base">
+                  Escribe una palabra o frase del NEA para descubrir su significado y conexiones culturales
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+                <div>
+                  <Label htmlFor="translator-origin" className="text-sm sm:text-base font-semibold mb-2 block">
+                    ¿De dónde vienes?
+                  </Label>
+                  <Input
+                    id="translator-origin"
+                    placeholder="Ej: China, Italia, México, Brasil, España, Francia..."
+                    value={translatorOrigin}
+                    onChange={(e) => setTranslatorOrigin(e.target.value)}
+                    className="h-10 sm:h-11"
+                  />
+                                     <p className="text-xs text-muted-foreground mt-1">
+                     TODA la respuesta estará traducida a tu idioma: palabra, explicación, ejemplo y comparaciones culturales
+                   </p>
+                   {translatorOrigin && (
+                     <div className="mt-2">
+                       <Badge variant="outline" className="text-xs">
+                         {(() => {
+                           const countryLanguageMap: { [key: string]: string } = {
+                             'españa': '🇪🇸 Español',
+                             'mexico': '🇲🇽 Español',
+                             'brasil': '🇧🇷 Portugués',
+                             'italia': '🇮🇹 Italiano',
+                             'francia': '🇫🇷 Francés',
+                             'alemania': '🇩🇪 Alemán',
+                             'inglaterra': '🇬🇧 Inglés',
+                             'estados unidos': '🇺🇸 Inglés',
+                             'china': '🇨🇳 Chino',
+                             'japon': '🇯🇵 Japonés',
+                             'corea': '🇰🇷 Coreano',
+                             'rusia': '🇷🇺 Ruso',
+                             'portugal': '🇵🇹 Portugués'
+                           };
+                           const originKey = translatorOrigin.toLowerCase().trim();
+                           return countryLanguageMap[originKey] || '🌍 Español (default)';
+                         })()}
+                       </Badge>
+                     </div>
+                   )}
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                  <Input
+                    placeholder="Ej: che, mate, mitaí, sapucai..."
+                    value={slangInput}
+                    onChange={(e) => setSlangInput(e.target.value)}
+                    className="flex-1 h-10 sm:h-11"
+                    onKeyDown={(e) => e.key === 'Enter' && handleTranslate()}
+                  />
+                  <Button 
+                    onClick={handleTranslate}
+                    className="bg-secondary hover:bg-secondary/90 text-secondary-foreground py-3 sm:py-4 text-sm sm:text-base w-full sm:w-auto"
+                    disabled={!slangInput.trim() || isTranslating}
+                  >
+                    {isTranslating ? (
+                      <>
+                        <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+                        Traduciendo...
+                      </>
+                    ) : (
+                      <>
+                        <ChatBubbleIcon className="mr-2 h-4 w-4" />
+                        Traducir con IA
+                      </>
+                    )}
+                  </Button>
+                </div>
+
+                {translationResult && (
+                  <AnimatedSection animation="fade-in" delay={100}>
+                    <Card className="bg-gradient-to-br from-primary/5 to-secondary/5 border-primary/20">
+                      <CardHeader className="p-4 sm:p-6">
+                        <CardTitle className="text-primary text-lg sm:text-xl">
+                          "{translationResult.word}"
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="p-4 sm:p-6 pt-0 space-y-3 sm:space-y-4">
+                        <div>
+                          <h4 className="font-semibold text-secondary mb-2 text-sm sm:text-base">Traducción:</h4>
+                          <p className="text-foreground text-sm sm:text-base">{translationResult.translation}</p>
+                        </div>
+                        <div>
+                          <h4 className="font-semibold text-secondary mb-2 text-sm sm:text-base">Contexto cultural NEA:</h4>
+                          <p className="text-muted-foreground text-sm sm:text-base">{translationResult.explanation}</p>
+                        </div>
+                        <div>
+                          <h4 className="font-semibold text-secondary mb-2 text-sm sm:text-base">Ejemplo de uso:</h4>
+                          <p className="text-foreground italic text-sm sm:text-base">"{translationResult.example}"</p>
+                        </div>
+                        {translationResult.culturalBridge && (
+                          <div className="border-t pt-4 mt-4">
+                            <h4 className="font-semibold text-accent mb-2 flex items-center gap-2 text-sm sm:text-base">
+                              <PersonIcon className="h-4 w-4" />
+                              {translationResult.culturalBridge}
+                              {translatorOrigin && <Badge variant="outline" className="ml-2">{translatorOrigin}</Badge>}
+                            </h4>
+                            <p className="text-foreground bg-accent/10 p-3 rounded-lg border-l-4 border-accent text-sm sm:text-base">
+                              {translationResult.comparison}
+                            </p>
+                          </div>
+                        )}
+                        
+                        {/* Show interactive suggestions if word was not found */}
+                        {translationResult.translation === 'Palabra no encontrada en nuestra base de datos' && (
+                          <div className="border-t pt-4 mt-4">
+                            <h4 className="font-semibold text-orange-600 mb-3">💡 Palabras sugeridas del NEA:</h4>
+                            <div className="flex flex-wrap gap-2">
+                              {['che', 'mate', 'mitaí', 'sapucai', 'aguante'].map((suggestedWord) => (
+                                <Button
+                                  key={suggestedWord}
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => {
+                                    setSlangInput(suggestedWord);
+                                    handleTranslate();
+                                  }}
+                                  className="text-xs bg-orange-50 hover:bg-orange-100 border-orange-200"
+                                  disabled={isTranslating}
+                                >
+                                  🔍 {suggestedWord}
+                                </Button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </AnimatedSection>
+                )}
+
+                {/* Popular suggestions */}
+                <div className="text-center">
+                  <p className="text-xs sm:text-sm text-muted-foreground mb-3">Palabras populares para explorar:</p>
+                  <div className="flex flex-wrap justify-center gap-2">
+                    {['che', 'mate', 'mitaí', 'sapucai', 'aguante'].map((word) => (
+                      <Button
+                        key={word}
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setSlangInput(word);
+                          handleTranslate();
+                        }}
+                        className="text-xs py-2 px-3 hover:bg-primary/10 hover:text-primary"
+                        disabled={isTranslating}
+                      >
+                        {word}
+                      </Button>
+                    ))}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    ✨ Estas palabras están disponibles en nuestra base de datos
+                  </p>
+                </div>
+
+              </CardContent>
+            </Card>
+          </AnimatedSection>
+        </div>
+      </section>
+
+      {/* Cultural Experience Builder Section */}
+      <section id="experience-section" className="py-12 sm:py-16 md:py-24 px-3 sm:px-6 lg:px-8 warm-gradient">
+        <div className="max-w-4xl mx-auto">
+          <AnimatedSection animation="fade-up" delay={100}>
+            <div className="text-center mb-8 sm:mb-12">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4 text-foreground">
+                🗺️ Constructor de Experiencia Cultural NEA
               </h2>
               <p className="text-base sm:text-lg text-muted-foreground px-2">
                 La IA creará actividades personalizadas basadas en tu origen cultural y destino elegido
               </p>
+              <div className="mt-4 flex justify-center">
+                <Badge variant="secondary" className="px-4 py-1 text-sm">
+                  🎯 Funcionalidad Complementaria
+                </Badge>
+              </div>
             </div>
           </AnimatedSection>
 
@@ -315,152 +524,6 @@ const Index = () => {
                     </Card>
                   </AnimatedSection>
                 )}
-              </CardContent>
-            </Card>
-          </AnimatedSection>
-        </div>
-      </section>
-
-      {/* Cultural Translator Section */}
-      <section id="translator-section" className="py-12 sm:py-16 md:py-24 px-3 sm:px-6 lg:px-8 bg-muted/30">
-        <div className="max-w-4xl mx-auto">
-          <AnimatedSection animation="fade-up" delay={100}>
-            <div className="text-center mb-8 sm:mb-12">
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4 text-foreground">
-                Traductor Cultural NEA
-              </h2>
-              <p className="text-base sm:text-lg text-muted-foreground px-2">
-                Descubre conexiones entre tu cultura y las expresiones del NEA
-              </p>
-            </div>
-          </AnimatedSection>
-
-          <AnimatedSection animation="bounce-in" delay={300}>
-            <Card className="shadow-soft">
-              <CardHeader className="p-4 sm:p-6">
-                <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-                  <ChatBubbleIcon className="h-4 w-4 sm:h-5 sm:w-5 text-secondary" />
-                  Traductor Cultural con Puentes
-                </CardTitle>
-                <CardDescription className="text-sm sm:text-base">
-                  Escribe una palabra o frase del NEA para descubrir su significado y conexiones culturales
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="p-4 sm:p-6 space-y-4 sm:space-y-6">
-                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-                  <Input
-                    placeholder="Ej: che, mate, mitaí, sapucai..."
-                    value={slangInput}
-                    onChange={(e) => setSlangInput(e.target.value)}
-                    className="flex-1 h-10 sm:h-11"
-                    onKeyDown={(e) => e.key === 'Enter' && handleTranslate()}
-                  />
-                  <Button 
-                    onClick={handleTranslate}
-                    className="bg-secondary hover:bg-secondary/90 text-secondary-foreground py-3 sm:py-4 text-sm sm:text-base w-full sm:w-auto"
-                    disabled={!slangInput.trim() || isTranslating}
-                  >
-                    {isTranslating ? (
-                      <>
-                        <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
-                        Traduciendo...
-                      </>
-                    ) : (
-                      <>
-                        <ChatBubbleIcon className="mr-2 h-4 w-4" />
-                        Traducir con IA
-                      </>
-                    )}
-                  </Button>
-                </div>
-
-                {translationResult && (
-                  <AnimatedSection animation="fade-in" delay={100}>
-                    <Card className="bg-gradient-to-br from-primary/5 to-secondary/5 border-primary/20">
-                      <CardHeader className="p-4 sm:p-6">
-                        <CardTitle className="text-primary text-lg sm:text-xl">
-                          "{translationResult.word}"
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="p-4 sm:p-6 pt-0 space-y-3 sm:space-y-4">
-                        <div>
-                          <h4 className="font-semibold text-secondary mb-2 text-sm sm:text-base">Traducción:</h4>
-                          <p className="text-foreground text-sm sm:text-base">{translationResult.translation}</p>
-                        </div>
-                        <div>
-                          <h4 className="font-semibold text-secondary mb-2 text-sm sm:text-base">Contexto cultural NEA:</h4>
-                          <p className="text-muted-foreground text-sm sm:text-base">{translationResult.explanation}</p>
-                        </div>
-                        <div>
-                          <h4 className="font-semibold text-secondary mb-2 text-sm sm:text-base">Ejemplo de uso:</h4>
-                          <p className="text-foreground italic text-sm sm:text-base">"{translationResult.example}"</p>
-                        </div>
-                        {translationResult.culturalBridge && (
-                          <div className="border-t pt-4 mt-4">
-                            <h4 className="font-semibold text-accent mb-2 flex items-center gap-2 text-sm sm:text-base">
-                              <PersonIcon className="h-4 w-4" />
-                              {translationResult.culturalBridge}
-                              {origin && <Badge variant="outline" className="ml-2">{origin}</Badge>}
-                            </h4>
-                            <p className="text-foreground bg-accent/10 p-3 rounded-lg border-l-4 border-accent text-sm sm:text-base">
-                              {translationResult.comparison}
-                            </p>
-                          </div>
-                        )}
-                        
-                        {/* Show interactive suggestions if word was not found */}
-                        {translationResult.translation === 'Palabra no encontrada en nuestra base de datos' && (
-                          <div className="border-t pt-4 mt-4">
-                            <h4 className="font-semibold text-orange-600 mb-3">💡 Palabras sugeridas del NEA:</h4>
-                            <div className="flex flex-wrap gap-2">
-                              {['che', 'mate', 'mitaí', 'sapucai', 'aguante'].map((suggestedWord) => (
-                                <Button
-                                  key={suggestedWord}
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => {
-                                    setSlangInput(suggestedWord);
-                                    handleTranslate();
-                                  }}
-                                  className="text-xs bg-orange-50 hover:bg-orange-100 border-orange-200"
-                                  disabled={isTranslating}
-                                >
-                                  🔍 {suggestedWord}
-                                </Button>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  </AnimatedSection>
-                )}
-
-                {/* Popular suggestions */}
-                <div className="text-center">
-                  <p className="text-xs sm:text-sm text-muted-foreground mb-3">Palabras populares para explorar:</p>
-                  <div className="flex flex-wrap justify-center gap-2">
-                    {['che', 'mate', 'mitaí', 'sapucai', 'aguante'].map((word) => (
-                      <Button
-                        key={word}
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          setSlangInput(word);
-                          handleTranslate();
-                        }}
-                        className="text-xs py-2 px-3 hover:bg-primary/10 hover:text-primary"
-                        disabled={isTranslating}
-                      >
-                        {word}
-                      </Button>
-                    ))}
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-2">
-                    ✨ Estas palabras están disponibles en nuestra base de datos
-                  </p>
-                </div>
-
               </CardContent>
             </Card>
           </AnimatedSection>
