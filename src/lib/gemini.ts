@@ -213,52 +213,30 @@ class GeminiService {
       const dbTranslation = await translationService.getTranslation(word);
       
       if (dbTranslation) {
-        console.log('✅ Found translation in database, trying to enhance with Gemini...');
+        console.log('✅ Found translation in database, returning cached version');
         
-        // If found in database, try to enhance with user-specific cultural bridge
-        if (userOrigin && userOrigin !== "internacional") {
-          try {
-            // Use Gemini to create personalized cultural bridge
-            const enhancedResponse = await this.translateWithCulturalContext({
-              word,
-              userOrigin,
-              culturalContext: `Traducción base: ${dbTranslation.translation}. ${dbTranslation.explanation}`
-            });
-            
-            return {
-              ...enhancedResponse,
-              translation: dbTranslation.translation,
-              explanation: dbTranslation.explanation,
-              example: dbTranslation.example
-            };
-          } catch (geminiError) {
-            console.warn('⚠️ Gemini not available, using database version with personalized bridge');
-            // Fallback: Return database version with enhanced personalized cultural bridge
-            return {
-              word: dbTranslation.word,
-              translation: dbTranslation.translation,
-              explanation: dbTranslation.explanation,
-              example: dbTranslation.example,
-              culturalBridge: `En mi cultura/lugar de origen (${userOrigin})`,
-              comparison: `Al igual que las expresiones culturales en ${userOrigin}, "${dbTranslation.word}" del NEA muestra cómo el lenguaje conecta comunidades. ${dbTranslation.comparison}`
-            };
-          }
-        }
+        // Return database version with personalized cultural bridge (no Gemini call)
+        const personalizedBridge = userOrigin && userOrigin !== "internacional" 
+          ? `En mi cultura/lugar de origen (${userOrigin})`
+          : (dbTranslation.cultural_bridge || "En mi cultura/lugar de origen");
         
-        // Return database version with standard format
+        const personalizedComparison = userOrigin && userOrigin !== "internacional"
+          ? `Al igual que las expresiones culturales en ${userOrigin}, "${dbTranslation.word}" del NEA muestra cómo el lenguaje conecta comunidades. ${dbTranslation.comparison}`
+          : dbTranslation.comparison;
+        
         return {
           word: dbTranslation.word,
           translation: dbTranslation.translation,
           explanation: dbTranslation.explanation,
           example: dbTranslation.example,
-          culturalBridge: dbTranslation.cultural_bridge || "En mi cultura/lugar de origen",
-          comparison: dbTranslation.comparison
+          culturalBridge: personalizedBridge,
+          comparison: personalizedComparison
         };
       }
       
-      console.log('⚠️ Word not found in database, trying Gemini...');
+      console.log('⚠️ Word not found in database, making ONE Gemini call...');
       
-      // If not in database, try Gemini to generate new translation
+      // If not in database, make ONE Gemini call to generate new translation
       try {
         const geminiResponse = await this.translateWithCulturalContext({
           word,
@@ -266,7 +244,7 @@ class GeminiService {
           culturalContext
         });
 
-        // Try to save to database for future use
+        // Try to save to database for future use (avoid future Gemini calls)
         try {
           await translationService.addTranslation({
             word: geminiResponse.word,
@@ -276,7 +254,7 @@ class GeminiService {
             cultural_bridge: geminiResponse.culturalBridge,
             comparison: geminiResponse.comparison
           });
-          console.log('✅ Saved new translation to database');
+          console.log('✅ Saved new translation to database to avoid future API calls');
         } catch (saveError) {
           console.warn('Could not save translation to database:', saveError);
         }
