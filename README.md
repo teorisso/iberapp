@@ -168,10 +168,4 @@ Proyecto desarrollado para el **HackIAthon by Devlights 2025** 🚀
 - Innovación en turismo cultural argentino
 - Tecnologías modernas y UX centrada en el usuario
 
-## 📄 Licencia
-
-Este proyecto fue desarrollado como parte de un hackathon y está disponible bajo licencia MIT.
-
----
-
 **¿Listo para explorar la cultura del NEA? ¡Empezá tu experiencia cultural con IberApp!** 🌍✨
