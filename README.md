@@ -71,8 +71,6 @@ VITE_GEMINI_API_KEY=tu_gemini_api_key
 npm run dev
 ```
 
-La aplicación estará disponible en `http://localhost:5173`
-
 ## 📂 Estructura del Proyecto
 
 ```
@@ -112,39 +110,6 @@ src/
 - **Particles flotantes** para ambiente inmersivo
 - **Tema coherente** con colores tierra y acentos cálidos
 - **Componentes accesibles** siguiendo estándares WCAG
-
-## 🎨 Personalización Visual
-
-El proyecto utiliza un sistema de colores personalizado inspirado en la cultura del NEA:
-
-```css
-:root {
-  --background: hsl(var(--background));
-  --foreground: hsl(var(--foreground));
-  --primary: hsl(var(--primary));      /* Colores tierra */
-  --secondary: hsl(var(--secondary));  /* Acentos naturales */
-  --accent: hsl(var(--accent));        /* Highlights cálidos */
-}
-```
-
-## 🔧 Scripts Disponibles
-
-```bash
-npm run dev          # Desarrollo con hot reload
-npm run build        # Build para producción
-npm run build:dev    # Build en modo desarrollo
-npm run preview      # Preview del build
-npm run lint         # Linting con ESLint
-```
-
-## 📱 Características Técnicas
-
-- **PWA Ready**: Configurado para ser instalable como app
-- **Optimizado**: Lazy loading y code splitting
-- **Accesible**: Componentes con soporte para lectores de pantalla
-- **TypeScript**: Tipado estático para mejor desarrollo
-- **Error Boundary**: Manejo robusto de errores
-- **Loading States**: Estados de carga para mejor UX
 
 ## 🤝 Desarrollo y Contribución
 
